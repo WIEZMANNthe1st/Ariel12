@@ -1131,7 +1131,7 @@ var GEMINI_EMBEDDED_KEY = '';
   var setup = document.getElementById('chat-setup'), msgs = document.getElementById('chat-msgs'),
       inbar = document.getElementById('chat-in'), q = document.getElementById('chat-q');
   var KEY_NAME = 'ariel_trip_gemini_key';
-  var MODEL = 'gemini-2.5-flash';
+  var MODEL = 'gemini-flash-latest'; // כינוי שגוגל מעדכנים אוטומטית לדגם ה-Flash העדכני ביותר
   var history = [];
   var tripContext = null;
 
@@ -1187,6 +1187,31 @@ var GEMINI_EMBEDDED_KEY = '';
     add('bot','מחוברים! 🎉 שאלו אותי כל דבר על הטיול.');
   });
 
+  /* רשימת מודלים לניסיון, לפי סדר עדיפות – אם אחד "לא זמין יותר", עוברים אוטומטית לבא בתור */
+  var MODEL_FALLBACKS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-pro-latest'];
+
+  function callModel(modelName, body){
+    return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+modelName+':generateContent?key='+encodeURIComponent(getKey()), {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, status:r.status, j:j}; }); });
+  }
+
+  function isModelUnavailable(res){
+    var m = (res.j.error && res.j.error.message) || '';
+    return res.status===404 || /not found|no longer available|not supported/i.test(m);
+  }
+
+  function callWithFallback(body, idx){
+    idx = idx || 0;
+    if (idx >= MODEL_FALLBACKS.length) return Promise.resolve({ok:false, status:0, j:{error:{message:'כל הדגמים נכשלו'}}});
+    return callModel(MODEL_FALLBACKS[idx], body).then(function(res){
+      if (!res.ok && isModelUnavailable(res) && idx+1 < MODEL_FALLBACKS.length){
+        return callWithFallback(body, idx+1);
+      }
+      return res;
+    });
+  }
+
   function send(){
     var text = q.value.trim();
     if (!text) return;
@@ -1198,9 +1223,7 @@ var GEMINI_EMBEDDED_KEY = '';
       contents: history.slice(-12),
       generationConfig:{temperature:0.6, maxOutputTokens:1000}
     };
-    fetch('https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+encodeURIComponent(getKey()), {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
-    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, status:r.status, j:j}; }); })
+    callWithFallback(body)
     .then(function(res){
       thinking.remove();
       if (!res.ok){
