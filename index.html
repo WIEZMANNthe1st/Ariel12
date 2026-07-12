@@ -6,6 +6,14 @@
 <title>טיול בת מצווה – אריאל · ארה"ב 2026 · המסלול המלא</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e8a93">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="הטיול של אריאל">
 <style>
 :root{
   --ink:#1b2a3a; --paper:#fffdf8; --line:#e8e1d4; --soft:#6b7686;
@@ -170,6 +178,19 @@ body.locked{overflow:hidden}
 #chat-setup .note{font-size:12.5px;color:var(--soft)}
 #chat-setup a{color:#0e8a93;font-weight:700}
 .chat-reset{background:none;border:0;color:var(--soft);font-size:11.5px;cursor:pointer;font-family:'Heebo';text-decoration:underline}
+
+
+/* ---------- WEATHER ---------- */
+.wx{margin-inline-start:auto;flex:0 0 auto;font-size:12.5px;font-weight:700;background:#fff;
+  border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;white-space:nowrap;color:#33414f;
+  box-shadow:0 2px 6px rgba(20,30,45,.06)}
+.wx .rain{color:#2f6db3}
+@media(max-width:560px){.wx{font-size:11px;padding:3px 9px}}
+/* ---------- QUICK CHIPS ---------- */
+#chat-chips{display:none;flex-wrap:wrap;gap:6px;padding:8px 10px 2px;background:#f7f5ef}
+#chat-chips button{border:1.5px solid #0e8a93;background:#fff;color:#0e8a93;border-radius:999px;
+  font-family:'Heebo';font-weight:700;font-size:12.5px;padding:5px 12px;cursor:pointer}
+#chat-chips button:hover{background:#0e8a93;color:#fff}
 
 </style>
 </head>
@@ -971,6 +992,13 @@ body.locked{overflow:hidden}
     <div class="note">🔒 המפתח נשמר רק בדפדפן במכשיר הזה, לא בתוך הקובץ – אפשר לשתף את האתר עם המשפחה בלי לחשוף אותו. השימוש ב-Gemini במסלול הזה חינמי.</div>
   </div>
   <div id="chat-msgs" style="display:none"></div>
+  <div id="chat-chips">
+    <button>מה בתוכנית היום? 📅</button>
+    <button>איפה אוכלים הערב? 🍽️</button>
+    <button>יורד גשם – מה עושים? 🌧️</button>
+    <button>מה ניתן לוויתור היום? 😴</button>
+    <button>מה מחר? ⏭️</button>
+  </div>
   <div id="chat-in" style="display:none">
     <textarea id="chat-q" placeholder="למשל: מה עושים ביום גשום באורלנדו?" rows="1"></textarea>
     <button id="chat-send">שלח</button>
@@ -1143,7 +1171,16 @@ var GEMINI_EMBEDDED_KEY = '';
     if (tripContext) return tripContext;
     var main = document.querySelector('main');
     var txt = main ? main.innerText.replace(/\n{3,}/g,'\n\n') : '';
+    var now = new Date();
+    var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var ts = new Date(2026,6,23);
+    var dn = Math.round((t0 - ts)/86400000) + 1;
+    var dateLine = 'התאריך היום: ' + now.toLocaleDateString('he-IL', {weekday:'long', day:'numeric', month:'numeric', year:'numeric'}) + '. ';
+    if (dn >= 1 && dn <= 24) dateLine += 'היום הוא יום ' + dn + ' מתוך 24 בטיול. כשנשאל "מה היום" – הכוונה ליום ' + dn + '. ';
+    else if (dn < 1) dateLine += 'הטיול מתחיל בעוד ' + (1-dn) + ' ימים. ';
+    else dateLine += 'הטיול הסתיים. ';
     tripContext =
+      dateLine +
       'אתה העוזר החכם של משפחת מלצר בטיול בת המצווה של אריאל לארה"ב (23.7–15.8.2026, 24 ימים: מיאמי, קרוז לבהאמה, אורלנדו, סנט אוגוסטין, סוואנה, ויליאמסבורג, וושינגטון, הרשי, פילדלפיה, ניו יורק). ' +
       'ענה בעברית, קצר וידידותי, על בסיס תוכנית הטיול שלהלן. אם שואלים משהו שלא בתוכנית – תוכל לענות מהידע הכללי שלך, אבל ציין שזה מעבר לתוכנית. ' +
       'זכור: בכל יום יש פריט אחד "ניתן לוויתור" שמורידים ראשון אם עייפים.\n\n=== תוכנית הטיול המלאה ===\n' + txt;
@@ -1154,6 +1191,7 @@ var GEMINI_EMBEDDED_KEY = '';
     setup.style.display = mode==='setup' ? 'flex' : 'none';
     msgs.style.display  = mode==='chat'  ? 'flex' : 'none';
     inbar.style.display = mode==='chat'  ? 'flex' : 'none';
+    document.getElementById('chat-chips').style.display = mode==='chat' ? 'flex' : 'none';
   }
   function add(cls, text){
     var d = document.createElement('div');
@@ -1249,11 +1287,89 @@ var GEMINI_EMBEDDED_KEY = '';
     });
   }
   document.getElementById('chat-send').addEventListener('click', send);
+  Array.prototype.forEach.call(document.querySelectorAll('#chat-chips button'), function(b){
+    b.addEventListener('click', function(){
+      q.value = b.textContent.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,'').trim();
+      send();
+    });
+  });
   q.addEventListener('keydown', function(e){
     if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); }
   });
 })();
 
+
+
+/* ===== PWA: רישום Service Worker (עבודה אופליין + התקנה) ===== */
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+/* ===== מזג אוויר חי לכל יום (Open-Meteo, חינם, ללא מפתח) ===== */
+(function(){
+  if (typeof fetch !== 'function') return;
+  var LOC = {
+    miami:{lat:25.77,lon:-80.19}, nassau:{lat:25.06,lon:-77.34},
+    orlando:{lat:28.29,lon:-81.41}, staug:{lat:29.90,lon:-81.31},
+    savannah:{lat:32.08,lon:-81.09}, wburg:{lat:37.27,lon:-76.71},
+    dc:{lat:38.89,lon:-77.03}, hershey:{lat:40.29,lon:-76.65},
+    philly:{lat:39.95,lon:-75.17}, nyc:{lat:40.76,lon:-73.98}
+  };
+  /* כרטיס לפי סדר → מיקום + תאריך (ימים 3–4 חולקים כרטיס) */
+  var CARDS = [
+    ['miami','2026-07-23'], ['miami','2026-07-24'], ['nassau','2026-07-25'],
+    ['miami','2026-07-27'], ['miami','2026-07-28'], ['orlando','2026-07-29'],
+    ['orlando','2026-07-30'], ['orlando','2026-07-31'], ['orlando','2026-08-01'],
+    ['orlando','2026-08-02'], ['staug','2026-08-03'], ['savannah','2026-08-04'],
+    ['wburg','2026-08-05'], ['wburg','2026-08-06'], ['dc','2026-08-07'],
+    ['dc','2026-08-08'], ['dc','2026-08-09'], ['hershey','2026-08-10'],
+    ['philly','2026-08-11'], ['nyc','2026-08-12'], ['nyc','2026-08-13'],
+    ['nyc','2026-08-14'], ['nyc','2026-08-15']
+  ];
+  function emoji(code){
+    if (code===0) return '☀️';
+    if (code<=2) return '🌤️';
+    if (code===3) return '☁️';
+    if (code<=48) return '🌫️';
+    if (code<=67 || (code>=80&&code<=82)) return '🌧️';
+    if (code<=77 || (code>=85&&code<=86)) return '🌨️';
+    return '⛈️';
+  }
+  var today = new Date(); today.setHours(0,0,0,0);
+  var horizon = new Date(today.getTime() + 15*86400000);
+  var cards = document.querySelectorAll('article.day');
+  /* מקבצים לפי מיקום כדי לחסוך בקשות */
+  var groups = {};
+  CARDS.forEach(function(cd, i){
+    var d = new Date(cd[1]+'T00:00:00');
+    if (d < today || d > horizon || !cards[i]) return;
+    (groups[cd[0]] = groups[cd[0]] || []).push({date:cd[1], card:cards[i]});
+  });
+  Object.keys(groups).forEach(function(loc){
+    var g = groups[loc], L = LOC[loc];
+    var dates = g.map(function(x){return x.date;}).sort();
+    var u = 'https://api.open-meteo.com/v1/forecast?latitude='+L.lat+'&longitude='+L.lon+
+            '&daily=weather_code,temperature_2m_max,precipitation_probability_max'+
+            '&timezone=auto&start_date='+dates[0]+'&end_date='+dates[dates.length-1];
+    fetch(u).then(function(r){return r.json();}).then(function(j){
+      if (!j.daily || !j.daily.time) return;
+      g.forEach(function(x){
+        var i = j.daily.time.indexOf(x.date);
+        if (i < 0) return;
+        var head = x.card.querySelector('.day-head');
+        if (!head || head.querySelector('.wx')) return;
+        var sp = document.createElement('span');
+        sp.className = 'wx';
+        var rain = j.daily.precipitation_probability_max[i];
+        sp.innerHTML = emoji(j.daily.weather_code[i]) + ' ' + Math.round(j.daily.temperature_2m_max[i]) + '°' +
+                       (rain >= 20 ? ' · <span class="rain">גשם ' + rain + '%</span>' : '');
+        head.appendChild(sp);
+      });
+    }).catch(function(){});
+  });
+})();
 </script>
 
 </body>
