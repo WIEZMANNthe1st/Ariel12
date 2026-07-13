@@ -205,6 +205,21 @@ body.locked{overflow:hidden}
 @media (prefers-reduced-motion: reduce){#fab-bubble{animation:none}}
 .bot-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.7);flex:0 0 auto}
 
+
+/* ---------- TRIP DIARY ---------- */
+#diary .empty{background:#fff;border:1.5px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--soft)}
+.diary-day{margin-top:22px}
+.diary-day h3{margin:0 0 10px;font-size:18px;color:#23406e}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pgrid img{width:100%;height:150px;object-fit:cover;border-radius:12px;cursor:pointer;display:block;
+  border:1px solid var(--line);transition:transform .15s}
+.pgrid img:hover{transform:scale(1.03)}
+#lightbox{position:fixed;inset:0;z-index:400;background:rgba(7,20,30,.93);display:none;align-items:center;
+  justify-content:center;padding:18px;cursor:zoom-out}
+#lightbox.open{display:flex}
+#lightbox img{max-width:96vw;max-height:92vh;border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,.6)}
+@media(max-width:560px){.pgrid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}.pgrid img{height:110px}}
+
 </style>
 </head>
 <body class="locked">
@@ -250,6 +265,7 @@ body.locked{overflow:hidden}
     <a class="px" href="#hotels">🏨 מלונות</a>
     <a class="px" href="#food">🍽️ מסעדות</a>
     <a class="px" href="#rain">🌧️ תוכנית גשם</a>
+    <a class="px" href="#diary">📸 יומן הטיול</a>
   </div>
 </nav>
 
@@ -977,7 +993,16 @@ body.locked{overflow:hidden}
 <p style="color:var(--soft);font-size:14px;margin-top:10px">חריג אחד שאין לו תוכנית ב': יום המעבר 5.8. גשם בדרך = פשוט נוסעים לאט יותר.</p>
 </section>
 
+
+<!-- ============ יומן הטיול ============ -->
+<section class="part info" id="diary" style="--acc:#f2678d">
+<h2>📸 יומן הטיול – התמונות שלנו</h2>
+<p class="lead">מתעדכן אוטומטית: כל תמונה שמעלים לתיקיית <b>photos</b> בגיטהאב מופיעה כאן, מקובצת לפי ימי הטיול.</p>
+<div id="diary-grid"><div class="empty">עוד אין תמונות ביומן… 🌴<br>ברגע שהטיול יתחיל והתמונות הראשונות יעלו – הן יופיעו כאן מעצמן!</div></div>
+</section>
 </main>
+
+<div id="lightbox"><img alt=""></div>
 
 <footer>
   מסמך זה הוכן עבור משפחת מלצר · טיול בת מצווה ארה"ב · יולי–אוגוסט 2026 · מבוסס על גרסה 2.8 של המסלול (12/07/2026)<br>
@@ -1389,6 +1414,54 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
     }).catch(function(){});
   });
 })();
+
+
+/* ===== יומן הטיול: גלריה אוטומטית מ-GitHub ===== */
+(function(){
+  if (typeof fetch !== 'function') return;
+  var REPO = 'WIEZMANNthe1st/Ariel12';
+  var grid = document.getElementById('diary-grid');
+  var lb = document.getElementById('lightbox'), lbimg = lb.querySelector('img');
+  lb.addEventListener('click', function(){ lb.classList.remove('open'); lbimg.src=''; });
+
+  function dayLabel(n){
+    var d = new Date(2026,6,22+n);
+    return 'יום ' + n + ' · ' + d.getDate() + '.' + (d.getMonth()+1);
+  }
+
+  fetch('https://api.github.com/repos/' + REPO + '/contents/photos?ref=main')
+  .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+  .then(function(files){
+    var imgs = files.filter(function(f){
+      return f.type==='file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name);
+    });
+    if (!imgs.length) return;
+    /* קיבוץ לפי קידומת מספר היום בשם הקובץ (למשל 05-wynwood.jpg) */
+    var groups = {};
+    imgs.forEach(function(f){
+      var m = f.name.match(/^(\d{1,2})[-_. ]/);
+      var k = m ? Math.min(24, Math.max(1, parseInt(m[1],10))) : 0;
+      (groups[k] = groups[k] || []).push(f);
+    });
+    grid.innerHTML = '';
+    Object.keys(groups).map(Number).sort(function(a,b){return a-b;}).forEach(function(k){
+      var sec = document.createElement('div'); sec.className = 'diary-day';
+      var t = document.createElement('h3');
+      t.textContent = k === 0 ? 'עוד רגעים מהטיול' : dayLabel(k);
+      sec.appendChild(t);
+      var g = document.createElement('div'); g.className = 'pgrid';
+      groups[k].sort(function(a,b){ return a.name.localeCompare(b.name); }).forEach(function(f){
+        var im = document.createElement('img');
+        im.loading = 'lazy'; im.alt = f.name; im.src = f.download_url;
+        im.addEventListener('click', function(){ lbimg.src = f.download_url; lb.classList.add('open'); });
+        g.appendChild(im);
+      });
+      sec.appendChild(g);
+      grid.appendChild(sec);
+    });
+  }).catch(function(){ /* אין תיקייה עדיין / אין רשת – משאירים את ההודעה הידידותית */ });
+})();
+
 </script>
 
 </body>
