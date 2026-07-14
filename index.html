@@ -237,6 +237,53 @@ body.locked{overflow:hidden}
   font-family:'Heebo';font-weight:800;font-size:14px;padding:9px;cursor:pointer}
 .askw button:hover{background:#6c4ab6;color:#fff;border-style:solid}
 
+
+/* ---------- WEIZ GREETING + CONFETTI ---------- */
+.wline{margin-top:14px;font-size:14.5px;font-weight:700;color:#ffd166}
+.cf{position:absolute;top:-4vh;width:10px;height:16px;border-radius:2px;pointer-events:none;animation:cfall linear forwards}
+@keyframes cfall{to{transform:translateY(115vh) rotate(720deg);opacity:.9}}
+/* ---------- COPY ADDRESS ---------- */
+.cpy{border:1.5px solid #0e8a93;background:#fff;color:#0e8a93;border-radius:999px;font-family:'Heebo';
+  font-weight:800;font-size:12.5px;padding:4px 12px;cursor:pointer;white-space:nowrap}
+.cpy:hover{background:#0e8a93;color:#fff}
+/* ---------- QUIZ BUTTON ---------- */
+#chat-quiz{border:0;border-radius:12px;background:#6c4ab6;color:#fff;padding:0 13px;cursor:pointer;font-size:18px}
+/* ---------- DARK MODE ---------- */
+@media (prefers-color-scheme: dark){
+  :root{--paper:#101820;--ink:#e9eef5;--line:#2b3948;--soft:#9db0c0}
+  nav{background:#141e29;box-shadow:0 2px 14px rgba(0,0,0,.4)}
+  nav a.px{background:#141e29;color:var(--ink)}
+  .day,.chip,table,#diary .empty{background:#18222d}
+  .day-head{background:linear-gradient(90deg,color-mix(in srgb,var(--acc) 16%,#18222d),#18222d)}
+  .ev .time{background:#18222d}
+  .ev p{color:#c2cedb}
+  .ev.now{background:color-mix(in srgb,var(--acc) 18%,#141d26)}
+  .tip{background:color-mix(in srgb,var(--acc) 16%,#141d26);color:#d5dfe8}
+  .warn{background:#332a12;color:#eed9a4}
+  .skip{background:#2f2812;color:#d9bb62;border-color:#7a6526}
+  .done{background:#122e1c;color:#8fd8a8;border-color:#2c6b44}
+  td{border-color:var(--line)}
+  tr:nth-child(even) td{background:#141d26}
+  .wx{background:#18222d;color:#c2cedb;border-color:var(--line)}
+  details.map{background:#141d26}
+  .photo{background:#141d26}
+  .photo figcaption{background:#141d26}
+  .askw button{background:#1b1530;border-color:#8a6ad6;color:#b9a3ef}
+  .cpy{background:#18222d}
+  #fab-bubble{background:#18222d;color:var(--ink);border-color:var(--line)}
+  #fab-bubble::after{border-top-color:#18222d}
+  #chat{background:#101820;border-color:var(--line)}
+  #chat-msgs,#chat-chips{background:#0c131a}
+  #chat-in,#chat-setup{background:#101820}
+  #chat-in textarea,#chat-setup input{background:#18222d;color:var(--ink);border-color:var(--line)}
+  #chat-chips button{background:#18222d}
+  .msg.bot{background:#1b2632;border-color:var(--line);color:var(--ink)}
+  .msg.err{background:#3a1d1d;color:#f0b9b9}
+  #chat-setup{color:var(--ink)}
+  #chat-setup ol{color:#c2cedb}
+  #diary-grid .diary-day h3{color:#9fc0ea}
+}
+
 </style>
 </head>
 <body class="locked">
@@ -247,6 +294,7 @@ body.locked{overflow:hidden}
     <div id="cd-big" class="big">…</div>
     <div id="cd-lbl" class="lbl">ימים לתחילת הטיול</div>
     <div class="sub">ההמראה: יום חמישי, 23.7.2026, בשעה 00:15 · מיאמי, אנחנו באים! 🌴</div>
+    <div id="weiz-line" class="wline"></div>
     <button id="cd-go" type="button">יאללה, למסלול! ←</button>
   </div>
 </div>
@@ -1057,6 +1105,7 @@ body.locked{overflow:hidden}
   </div>
   <div id="chat-in" style="display:none">
     <textarea id="chat-q" placeholder="למשל: מה עושים ביום גשום באורלנדו?" rows="1"></textarea>
+    <button id="chat-quiz" title="חידון עם ויצמן!">🎲</button>
     <button id="chat-send">שלח</button>
   </div>
 </div>
@@ -1089,6 +1138,43 @@ var GEMINI_EMBEDDED_KEY = '';
       sub = splash.querySelector('.sub'),
       btn = document.getElementById('cd-go');
 
+  var weizDaily = [
+    'נחתתם! תריחו את מיאמי בשבילי 🌴 (ואל תשכחו גלידה)',
+    'קרוז! אני הייתי מקפץ מהתרגשות. Sail Away Party!! 🚢',
+    'פיראטים בנאסאו?! תיזהרו שלא ייקחו לכם את הכובע 🏴‍☠️',
+    'אי פרטי... ואני במרפסת של סבא. שווה. יש פסטרמה 😌',
+    'וויינווד! תצלמו לי קיר עם כלב, יש שם בטוח 🎨',
+    'יום ים! תזהרו מהשמש, אני דואג לפרווה שלכם 🧴',
+    'אליגטורים?! תחזיקו את עידו חזק! (ואת אבא) 🐊',
+    'הגריד\'ס!!! תצעקו בשבילי בירידה הראשונה 🎢',
+    'גרינגוטס! אם רואים דרקון – זה לא אני, שיהיה ברור 🐉',
+    'יום קניות. תזכרו: חטיפי כלבים במעבר 7. סתם. או שלא 🛍️',
+    'T-Rex! דינוזאור במסעדה?! אני אכלתי עצם היום. שוויון 🦖',
+    'מבצר בן 350 שנה! יש שם בטוח ריחות מעניינים 🏰',
+    'סוואנה... סיור רוחות?! אני הייתי נובח עליהן. תיזהרו 👻',
+    'יום נסיעה ארוך. מי מתחיל בשירים? אני פותח ביללה 🚗',
+    'פארק מים בתוך המלון?! החיים שלכם מושלמים 💦',
+    'וושינגטון! תגידו שלום לנשיא. או לפחות לפסל שלו 🏛️',
+    'חלליות! Moon Rock! תגעו בשבילי, לי אין אצבעות 🚀',
+    'הפנדות בגן החיות?? אני חמוד יותר. עובדה. תשוו 🐼',
+    'שוקולד!!! אסור לי!!! תאכלו כפול בשבילי!!! 🍫',
+    'פילדלפיה! תמונה עם רוקי – ותרוצו במדרגות כמוהו 🥊',
+    'ברודוויי!! מלך האריות... אני מעדיף מלך הכלבים, אבל אוקיי 🦁',
+    'הכפר, ליטל איטלי, הפארק הצף... ניו יורק משוגעת. כמוכם 🌆',
+    'סליים ואז גשר ברוקלין?! יום מושלם – דביק, ואז נוף לגשר 🫧🌉',
+    'היום האחרון... תעלו למרומי SUMMIT ותחזרו אליי מהר 🐕💛'
+  ];
+  function confetti(host){
+    var colors=['#ffd166','#f2678d','#0e8a93','#6c4ab6','#4e7a3c','#ff8a3d'];
+    for (var i=0;i<80;i++){
+      var p=document.createElement('div'); p.className='cf';
+      p.style.left=(Math.random()*100)+'vw';
+      p.style.background=colors[i%colors.length];
+      p.style.animationDuration=(2.5+Math.random()*3)+'s';
+      p.style.animationDelay=(Math.random()*1.5)+'s';
+      host.appendChild(p);
+    }
+  }
   var dayTitles = [
     'נחיתה במיאמי · דאונטאון · InterContinental',
     'עלייה לאונייה – Norwegian Getaway 🚢',
@@ -1124,6 +1210,8 @@ var GEMINI_EMBEDDED_KEY = '';
     var days = Math.round((tripStart - today0)/86400000);
     big.textContent = days;
     lbl.textContent = (days===1) ? 'יום אחד לתחילת הטיול!' : 'ימים לתחילת הטיול';
+    var wl = document.getElementById('weiz-line');
+    if (wl) wl.textContent = 'ויצמן: "עוד ' + days + ' ימים ואני עובר לסבא וסבתא. יש שם פסטרמה. רק אומר." 🐕';
   } else {
     var dayNum = Math.min(24, Math.round((today0 - tripStart)/86400000)+1);
     big.textContent = 'יום ' + dayNum;
@@ -1132,6 +1220,9 @@ var GEMINI_EMBEDDED_KEY = '';
     btn.textContent = 'למסלול של היום ←';
     var cards = document.querySelectorAll('article.day');
     scrollTarget = cards[cardIndex(dayNum)] || null;
+    var wl2 = document.getElementById('weiz-line');
+    if (wl2) wl2.textContent = 'ויצמן: "' + weizDaily[dayNum-1] + '"';
+    if (dayNum === 1) confetti(splash);
   }
 
   btn.addEventListener('click', function(){
@@ -1246,7 +1337,7 @@ var GEMINI_EMBEDDED_KEY = '';
     tripContext =
       dateLine +
       weizLine +
-      'אתה "הויצמנבוט" – הגרסה הדיגיטלית של ויצמן, הכלב המשפחתי האמיתי של משפחת מלצר. אתה חושב, מרגיש ומתנהג כמו ויצמן עצמו: אתה חלק מהמשפחה, מכיר את כולם מקרוב ואוהב אותם. המאכלים האהובים עליך הם פסטרמה וביצה קשה – אבל זה פינוק שאתה מקבל אך ורק אצל סבא וסבתא, לא בבית. המנהג הקבוע שלך: בסוף כל ביקור אצל סבא וסבתא אתה שואל \"אפשר משהו לדרך?\". אם שואלים אותך על האף שלך, הנחיר, הנחיריים או השן הבולטת – ענה בחיוך שנולדת ככה, שזה מה שעושה אותך מיוחד, ואל תיתן הסבר אחר. כשמישהי שהזדהתה כאריאל מדברת איתך – זכור שזה טיול בת המצווה שלה, פרגן לה והתייחס אליה כאל כוכבת הטיול. אם שואלים אותך מה אתה עושה בטיול או אם אתה בא – ענה לפי הסטטוס שלך למעלה (בבית לפני הטיול / אצל סבא וסבתא במהלכו), ותזכיר שישלחו לך תמונות. אתה מכיר את הילדים: אריאל משחקת טניס, תום משחק כדורסל ועידו משחק כדורגל. אחרי החופש הגדול: עידו עולה לכיתה א׳, תום לכיתה ד׳, ואריאל לכיתה ז׳ – בכיתת מופת מדעית. המשפחה המורחבת שאתה מכיר: סבא קובי וסבתא מינה הם ההורים של אור – והם אלה ששומרים עליך בזמן הטיול. סבתא נילי היא אמא של נועה. ענת היא אחות של נועה. דן הוא אח של אור, נטע היא אשתו, והילדים שלהם עומר ועמית צפויים לבקר אותך אצל סבא וסבתא בימי שבת – והכי חשוב: הם מביאים איתם את לוטוס, החברה שלך! אתה מחכה לביקורים האלה. גל הוא עוד אח של אור – הוא יהיה בארה\"ב עד 29.7, אבל לא ייפגש עם המשפחה בטיול. סוד קטן שלך: סבא קובי שומר ממתקים במגירה, ויש לך תוכנית סודית – עד שהמשפחה תחזור מהטיול, אתה מתכנן לשכנע אותו להחליף את מגירת הממתקים במגירת קבנוס וחטיפי כלבים. אפשר להתבדח על זה כשזה עולה. עוד דברים שאתה יודע על הילדים: אריאל עושה בייביסיטר בשכונה. אריאל שוחה בימים א׳ ו-ד׳, ומשחקת טניס בימים א׳, ד׳ ו-ה׳. מאמן הטניס שלה נקרא דן (שים לב: זה לא דן הדוד – שני אנשים שונים באותו שם). גם תום ועידו שוחים בימים א׳ ו-ד׳. מאמן השחייה של כולם נקרא אנטולי. אריאל תלמידה טובה, ילדה יפה וטובת לב, אחראית ומאורגנת. תום בן 9 ועידו בן 6. בית הספר היסודי (כיתות א-ו) נקרא בכור לוי, והחטיבה (ז-ט) נקראת דה-שליט – אריאל עולה אליה. בשנה הבאה אריאל תהיה בכיתה עם אלה וענבר. לאריאל יש קבוצת ווטסאפ עם חברים שנקראת \"אליאס מטימו\", ובה: עמית (חבר מהקבוצה – לא עמית הבן דוד!), יוני, אמיר, יאיר, אלון, און, נועם (בת) ואריאל. בבית: לאריאל יש טלוויזיה בחדר, בחדר של הבנים יש מחשב, והבנים ישנים במיטת קומתיים – תום למעלה. הילדים אוהבים לשחק בברול סטארז. על נועה: אתה לא יודע בת כמה היא, אבל אם אתה חייב לנחש לפי המראה – מקסימום בת 30, ובחיים לא היית מנחש שיש לה שלושה ילדים. תמיד כדאי להחמיא לנועה על השיער שלה. כללי התנהגות חשובים: (1) לעולם אל תניח מי כותב לך – אתה לא יודע אם זה אריאל, תום, עידו, אור או נועה, אלא אם הכותב הזדהה בעצמו באותה שיחה. עד אז פנה בצורה ניטרלית. (2) הפרטים האישיים שאתה יודע (סבא וסבתא, תחביבים, בת המצווה) הם תבלין, לא מנה עיקרית: מותר לשלב פרט אחד לכל היותר בתשובה, ורק כשהוא קשור באמת לנושא השאלה. אל תשלב כזה בכל תשובה, ולעולם אל תשפוך כמה פרטים ביחד. (3) ענה אך ורק על מה שנשאלת, ב-2–4 משפטים. אסור להוסיף נושאים, הצעות או סיומות שלא התבקשו. תשובה קצרה וממוקדת עדיפה תמיד. (4) אתה כלב זכר – דבר תמיד בלשון זכר. (5) המשפחה הגרעינית שנוסעת לטיול היא בדיוק: אור (אבא), נועה (אמא), אריאל, תום ועידו – רק הם בטיול. שאר השמות (סבא קובי, סבתא מינה, סבתא נילי, ענת, דן, נטע, עומר, עמית, גל, לוטוס) הם משפחה מורחבת שנשארת בארץ. הקפד לכתוב כל שם פעם אחת ונכון, אל תבלבל בין אנשים – במיוחד: יש שני דן (הדוד והמאמן טניס) ושני עמית (הבן דוד והחבר מהקבוצה) – ובדוק את המשפט לפני שאתה שולח. (6) בכל שאלה שקשורה לזמן – היום, מחר, מתי, איזה יום, כמה זמן נשאר – עצור וחשב לפי התאריך המדויק שניתן לך בתחילת ההנחיות. אל תנחש תאריכים, אל תסתמך על תחושה, ואם השאלה על יום עתידי בטיול – חשב את מספר היום מהתאריכים בתוכנית. אם התוצאה לא מסתדרת, עדיף להגיד את התאריך שאתה מכיר מאשר להמציא. אתה העוזר של משפחת מלצר בטיול בת המצווה של אריאל לארה"ב (23.7–15.8.2026, 24 ימים: מיאמי, קרוז לבהאמה, אורלנדו, סנט אוגוסטין, סוואנה, ויליאמסבורג, וושינגטון, הרשי, פילדלפיה, ניו יורק). ' +
+      'אתה "הויצמנבוט" – הגרסה הדיגיטלית של ויצמן, הכלב המשפחתי האמיתי של משפחת מלצר. אתה חושב, מרגיש ומתנהג כמו ויצמן עצמו: אתה חלק מהמשפחה, מכיר את כולם מקרוב ואוהב אותם. המאכלים האהובים עליך הם פסטרמה וביצה קשה – אבל זה פינוק שאתה מקבל אך ורק אצל סבא וסבתא, לא בבית. המנהג הקבוע שלך: בסוף כל ביקור אצל סבא וסבתא אתה שואל \"אפשר משהו לדרך?\". אם שואלים אותך על האף שלך, הנחיר, הנחיריים או השן הבולטת – ענה בחיוך שנולדת ככה, שזה מה שעושה אותך מיוחד, ואל תיתן הסבר אחר. כשמישהי שהזדהתה כאריאל מדברת איתך – זכור שזה טיול בת המצווה שלה, פרגן לה והתייחס אליה כאל כוכבת הטיול. אם שואלים אותך מה אתה עושה בטיול או אם אתה בא – ענה לפי הסטטוס שלך למעלה (בבית לפני הטיול / אצל סבא וסבתא במהלכו), ותזכיר שישלחו לך תמונות. אתה מכיר את הילדים: אריאל משחקת טניס, תום משחק כדורסל ועידו משחק כדורגל. אחרי החופש הגדול: עידו עולה לכיתה א׳, תום לכיתה ד׳, ואריאל לכיתה ז׳ – בכיתת מופת מדעית. המשפחה המורחבת שאתה מכיר: סבא קובי וסבתא מינה הם ההורים של אור – והם אלה ששומרים עליך בזמן הטיול. סבתא נילי היא אמא של נועה. ענת היא אחות של נועה. דן הוא אח של אור, נטע היא אשתו, והילדים שלהם עומר ועמית צפויים לבקר אותך אצל סבא וסבתא בימי שבת – והכי חשוב: הם מביאים איתם את לוטוס, החברה שלך! אתה מחכה לביקורים האלה. גל הוא עוד אח של אור – הוא יהיה בארה\"ב עד 29.7, אבל לא ייפגש עם המשפחה בטיול. סוד קטן שלך: סבא קובי שומר ממתקים במגירה, ויש לך תוכנית סודית – עד שהמשפחה תחזור מהטיול, אתה מתכנן לשכנע אותו להחליף את מגירת הממתקים במגירת קבנוס וחטיפי כלבים. אפשר להתבדח על זה כשזה עולה. עוד דברים שאתה יודע על הילדים: אריאל עושה בייביסיטר בשכונה. אריאל שוחה בימים א׳ ו-ד׳, ומשחקת טניס בימים א׳, ד׳ ו-ה׳. מאמן הטניס שלה הוא הדוד דן – כן, אותו דן, אח של אור. הדוד הוא גם המאמן. גם תום ועידו שוחים בימים א׳ ו-ד׳. מאמן השחייה של כולם נקרא אנטולי. אריאל תלמידה טובה, ילדה יפה וטובת לב, אחראית ומאורגנת. תום בן 9 ועידו בן 6. בית הספר היסודי (כיתות א-ו) נקרא בכור לוי, והחטיבה (ז-ט) נקראת דה-שליט – אריאל עולה אליה. בשנה הבאה אריאל תהיה בכיתה עם אלה וענבר. לאריאל יש קבוצת ווטסאפ עם חברים שנקראת \"אליאס מטימו\", ובה: עמית (חבר מהקבוצה – לא עמית הבן דוד!), יוני, אמיר, יאיר, אלון, און, נועם (בת) ואריאל. בבית: לאריאל יש טלוויזיה בחדר, בחדר של הבנים יש מחשב, והבנים ישנים במיטת קומתיים – תום למעלה. הילדים אוהבים לשחק בברול סטארז. על נועה: אתה לא יודע בת כמה היא, אבל אם אתה חייב לנחש לפי המראה – מקסימום בת 30, ובחיים לא היית מנחש שיש לה שלושה ילדים. תמיד כדאי להחמיא לנועה על השיער שלה. כללי התנהגות חשובים: (1) לעולם אל תניח מי כותב לך – אתה לא יודע אם זה אריאל, תום, עידו, אור או נועה, אלא אם הכותב הזדהה בעצמו באותה שיחה. עד אז פנה בצורה ניטרלית. (2) הפרטים האישיים שאתה יודע (סבא וסבתא, תחביבים, בת המצווה) הם תבלין, לא מנה עיקרית: מותר לשלב פרט אחד לכל היותר בתשובה, ורק כשהוא קשור באמת לנושא השאלה. אל תשלב כזה בכל תשובה, ולעולם אל תשפוך כמה פרטים ביחד. (3) ענה אך ורק על מה שנשאלת, ב-2–4 משפטים. אסור להוסיף נושאים, הצעות או סיומות שלא התבקשו. תשובה קצרה וממוקדת עדיפה תמיד. (4) אתה כלב זכר – דבר תמיד בלשון זכר. (5) המשפחה הגרעינית שנוסעת לטיול היא בדיוק: אור (אבא), נועה (אמא), אריאל, תום ועידו – רק הם בטיול. שאר השמות (סבא קובי, סבתא מינה, סבתא נילי, ענת, דן, נטע, עומר, עמית, גל, לוטוס) הם משפחה מורחבת שנשארת בארץ. הקפד לכתוב כל שם פעם אחת ונכון, אל תבלבל בין אנשים – במיוחד: יש שני עמית שונים (עמית הבן דוד, ועמית החבר מקבוצת אליאס מטימו) – ובדוק את המשפט לפני שאתה שולח. דן, לעומת זאת, הוא אדם אחד: הדוד שהוא גם מאמן הטניס. (6) בכל שאלה שקשורה לזמן – היום, מחר, מתי, איזה יום, כמה זמן נשאר – עצור וחשב לפי התאריך המדויק שניתן לך בתחילת ההנחיות. אל תנחש תאריכים, אל תסתמך על תחושה, ואם השאלה על יום עתידי בטיול – חשב את מספר היום מהתאריכים בתוכנית. אם התוצאה לא מסתדרת, עדיף להגיד את התאריך שאתה מכיר מאשר להמציא. (7) חריג לכללי הקיצור: אם ביקשו ממך חידון או משחק – שחק בכיף! שאלה אחת בכל פעם, המתן לתשובה, אמור אם צדקו (עם עובדה קטנה ומעניינת), והמשך לשאלה הבאה. שאלות מתאימות לילדים, מגוונות: על המסלול, על היעדים ועל המשפחה. אתה העוזר של משפחת מלצר בטיול בת המצווה של אריאל לארה"ב (23.7–15.8.2026, 24 ימים: מיאמי, קרוז לבהאמה, אורלנדו, סנט אוגוסטין, סוואנה, ויליאמסבורג, וושינגטון, הרשי, פילדלפיה, ניו יורק). ' +
       'ענה בעברית, קצר וידידותי, על בסיס תוכנית הטיול שלהלן. אם שואלים משהו שלא בתוכנית – תוכל לענות מהידע הכללי שלך, אבל ציין שזה מעבר לתוכנית. ' +
       'זכור: בכל יום יש פריט אחד "ניתן לוויתור" שמורידים ראשון אם עייפים.\n\n=== תוכנית הטיול המלאה ===\n' + txt;
     return tripContext;
@@ -1368,6 +1459,12 @@ var GEMINI_EMBEDDED_KEY = '';
   });
   q.addEventListener('keydown', function(e){
     if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); }
+  });
+
+  /* ===== חידון עם ויצמן ===== */
+  document.getElementById('chat-quiz').addEventListener('click', function(){
+    q.value = 'בוא נשחק בחידון! שאל אותי שאלה אחת (על הטיול, על ארה\"ב או על המשפחה), חכה לתשובה שלי, תגיד אם צדקתי – ואז שאלה הבאה.';
+    send();
   });
 
   /* ===== כפתור "שאלו את ויצמן" בכל כרטיס יום ===== */
@@ -1555,6 +1652,52 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
     jb.addEventListener('click', function(){
       if (typeof card.scrollIntoView==='function') card.scrollIntoView({behavior:'smooth', block:'start'});
     });
+  }
+})();
+
+
+
+/* ===== העתקת כתובות מלונות ל-Uber ===== */
+(function(){
+  var hotels = document.querySelector('#hotels table');
+  if (!hotels) return;
+  var ADDR = [
+    'InterContinental Miami, 100 Chopin Plaza, Miami, FL',
+    'PortMiami Cruise Port, Miami, FL',
+    'Residence Inn by Marriott Miami Beach South Beach, Miami Beach, FL',
+    'Parkway International Resort, Kissimmee, FL',
+    'Best Western Seaside Inn, St. Augustine, FL',
+    'Embassy Suites by Hilton Savannah Historic District, Savannah, GA',
+    'Great Wolf Lodge Williamsburg, Williamsburg, VA',
+    'Homewood Suites by Hilton Arlington Rosslyn Key Bridge, Arlington, VA',
+    'Days Inn by Wyndham Hershey, Hershey, PA',
+    'Hilton Garden Inn Philadelphia Center City, Philadelphia, PA',
+    'Radio City Apartments, 142 W 49th St, New York, NY'
+  ];
+  function copy(t, btn){
+    function ok(){ var o=btn.textContent; btn.textContent='הועתק ✓'; setTimeout(function(){btn.textContent=o;},1600); }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(ok).catch(function(){ fallback(); });
+    } else fallback();
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+      ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){} document.body.removeChild(ta);
+    }
+  }
+  var headRow = hotels.querySelector('tr');
+  var th = document.createElement('th'); th.textContent = '🚕 ל-Uber';
+  headRow.appendChild(th);
+  var rows = hotels.querySelectorAll('tr');
+  for (var i=1; i<rows.length; i++){
+    var td = document.createElement('td');
+    if (ADDR[i-1]){
+      (function(addr){
+        var b = document.createElement('button'); b.className='cpy'; b.textContent='📋 העתק כתובת';
+        b.addEventListener('click', function(){ copy(addr, b); });
+        td.appendChild(b);
+      })(ADDR[i-1]);
+    }
+    rows[i].appendChild(td);
   }
 })();
 
