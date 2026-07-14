@@ -3,7 +3,7 @@
    ואם אין אינטרנט – מגישים מהמטמון. תמונות, פונטים ומשאבים חיצוניים
    נשמרים במטמון אחרי הטעינה הראשונה, כך שהאתר עובד גם בלי קליטה. */
 
-var CACHE = 'ariel-trip-v2';
+var CACHE = 'ariel-trip-v3';
 var PRECACHE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
@@ -25,7 +25,7 @@ self.addEventListener('fetch', function (e) {
   if (req.method !== 'GET') return;
 
   /* בקשות ל-AI (Gemini) ולמזג אוויר – תמיד רשת, בלי מטמון */
-  if (/generativelanguage\.googleapis\.com|api\.open-meteo\.com/.test(req.url)) return;
+  if (/generativelanguage\.googleapis\.com|api\.open-meteo\.com|vcheck=/.test(req.url)) return;
 
   /* רשימת תמונות היומן (GitHub API): רשת קודם כדי לקבל תמונות חדשות, מטמון כגיבוי באופליין */
   if (/api\.github\.com/.test(req.url)) {
