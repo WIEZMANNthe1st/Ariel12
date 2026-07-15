@@ -115,12 +115,16 @@ footer{text-align:center;color:var(--soft);font-size:13.5px;padding:34px 16px 46
 }
 
 /* ---------- PHOTOS ---------- */
-.photo{margin:0;border-bottom:1px solid var(--line);display:none;position:relative;overflow:hidden;background:#f3efe6}
-.photo.on{display:block}
+.photo{margin:0;border-bottom:1px solid var(--line);display:block;position:relative;overflow:hidden;
+  background:linear-gradient(100deg,#efe9dc 40%,#faf6ec 50%,#efe9dc 60%);background-size:200% 100%;
+  animation:shimmer 1.4s infinite linear}
+.photo.on{animation:none;background:#f3efe6}
 .photo.off{display:none}
 @keyframes shimmer{to{background-position:-200% 0}}
 @media (max-width:720px){.photo{animation:none;background:#efe9dc}}
-.photo img{width:100%;height:230px;object-fit:cover;display:block}
+.photo img{width:100%;height:230px;object-fit:cover;display:block;opacity:0;transition:opacity .45s}
+.photo.on img{opacity:1}
+.photo:not(.on) figcaption{visibility:hidden}
 @media (prefers-reduced-motion: reduce){.photo{animation:none}}
 .photo figcaption{font-size:12px;color:var(--soft);padding:5px 20px;background:#fbf9f4}
 .photo2{display:grid;grid-template-columns:1fr 1fr;gap:2px}
@@ -269,7 +273,8 @@ body.dark td{border-color:var(--line)}
 body.dark tr:nth-child(even) td{background:#141d26}
 body.dark .wx{background:#18222d;color:#c2cedb;border-color:var(--line)}
 body.dark details.map{background:#141d26}
-body.dark .photo{background:#141d26}
+body.dark .photo{background:linear-gradient(100deg,#141d26 40%,#1c2833 50%,#141d26 60%);background-size:200% 100%}
+body.dark .photo.on{background:#141d26}
 body.dark .photo figcaption{background:#141d26}
 body.dark .askw button{background:#1b1530;border-color:#8a6ad6;color:#b9a3ef}
 body.dark .cpy{background:#18222d}
@@ -308,8 +313,8 @@ body.dark #summary .bless{color:#c2cedb}
   font-weight:900;font-size:14px;padding:7px 16px;cursor:pointer;white-space:nowrap}
 
 
-/* ---------- (sticky day head – מנוטרל) ---------- */
-.day{overflow:hidden}
+/* ---------- STICKY DAY HEAD (דסקטופ בלבד) ---------- */
+@media (min-width:721px){.day{overflow:visible}.day-head{position:sticky;top:96px;z-index:5}}
 .day-head{border-radius:16px 16px 0 0}
 details.map{border-radius:0 0 16px 16px;overflow:hidden}
 .photo{overflow:hidden}
@@ -334,39 +339,26 @@ body.dark .past-chip{background:#122e1c;color:#8fd8a8;border-color:#2c6b44}
 .star{display:inline-block;vertical-align:2px;margin-right:8px;font-size:11.5px;font-weight:900;color:#5c4300;
   background:linear-gradient(90deg,#ffd166,#ffb84d);border-radius:999px;padding:1px 10px;white-space:nowrap;
   box-shadow:0 2px 8px rgba(255,184,77,.45)}
-/* ---------- BOTTOM ACTION BAR (mobile) ---------- */
-#actbar{display:none}
+/* ---------- MOBILE SPACING ---------- */
 @media (max-width:720px){
-  #actbar{position:fixed;bottom:0;left:0;right:0;z-index:180;display:flex;
-    background:#fff;border-top:1px solid var(--line);
-    padding-bottom:env(safe-area-inset-bottom)}
-  #actbar button{flex:1;border:0;background:none;font-family:'Heebo';cursor:pointer;
-    padding:8px 0 9px;color:#42505f;font-size:11px;font-weight:800;line-height:1.2}
-  #actbar button .ic{display:block;font-size:21px;margin-bottom:1px}
-  #actbar button:active{transform:scale(.94)}
-  body.dark #actbar{background:#101820;border-top-color:var(--line)}
-  body.dark #actbar button{color:#c2cedb}
-  main{padding-bottom:100px}
-  footer{padding-bottom:110px}
-  /* פינוי מקום לאלמנטים הצפים מעל הסרגל */
-  #chat-fab{bottom:80px}
-  #fab-bubble{bottom:152px}
-  #jump-today{display:none !important}   /* הסרגל מחליף אותו בנייד */
-  #upd-toast{bottom:150px}
-  #chat{bottom:76px;height:min(560px,calc(100vh - 96px))}
+  main{padding-bottom:40px}
+  footer{padding-bottom:80px}
 }
-
-
 /* ---------- TRIP PROGRESS DOTS ---------- */
-#tripbar{display:flex;justify-content:center;gap:5px;padding:7px 12px 9px;background:#fff;border-top:1px solid #f1ecdf}
-#tripbar .dot{width:8px;height:8px;border-radius:50%;border:1.5px solid #cfc7b6;background:#fff;cursor:pointer;padding:0;transition:transform .15s}
-#tripbar .dot.fill{background:#0e8a93;border-color:#0e8a93}
-#tripbar .dot.now{background:#f2678d;border-color:#f2678d;transform:scale(1.5);box-shadow:0 0 0 3px rgba(242,103,141,.25)}
-#tripbar .dot:hover{transform:scale(1.4)}
+#tripbar{display:flex;justify-content:center;gap:3px;padding:6px 10px 8px;background:#fff;
+  border-top:1px solid #f1ecdf;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#tripbar::-webkit-scrollbar{display:none}
+#tripbar .dot{flex:0 0 auto;width:19px;height:19px;border-radius:50%;border:1.5px solid #cfc7b6;background:#fff;
+  color:#8b93a1;cursor:pointer;padding:0;font-family:'Heebo';font-weight:800;font-size:10px;line-height:1;
+  display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+#tripbar .dot.fill{background:#0e8a93;border-color:#0e8a93;color:#fff}
+#tripbar .dot.now{background:#f2678d;border-color:#f2678d;color:#fff;transform:scale(1.18);font-size:11px;
+  box-shadow:0 0 0 3px rgba(242,103,141,.22)}
+@media (max-width:720px){#tripbar{justify-content:flex-start}}
 body.dark #tripbar{background:#141e29;border-top-color:#1c2833}
-body.dark #tripbar .dot{background:#141e29;border-color:#3a4a5c}
-body.dark #tripbar .dot.fill{background:#0e8a93;border-color:#0e8a93}
-body.dark #tripbar .dot.now{background:#f2678d;border-color:#f2678d}
+body.dark #tripbar .dot{background:#141e29;border-color:#3a4a5c;color:#8b9cad}
+body.dark #tripbar .dot.fill{background:#0e8a93;border-color:#0e8a93;color:#fff}
+body.dark #tripbar .dot.now{background:#f2678d;border-color:#f2678d;color:#fff}
 /* ---------- SCROLL REVEAL ---------- */
 .ev.pre{opacity:0;transform:translateY(10px)}
 .ev.vis{opacity:1;transform:none;transition:opacity .5s ease,transform .5s ease}
@@ -387,9 +379,7 @@ body.off-sticky .day-head{position:static !important}
 body.off-photos .photo{display:none !important}
 body.off-anim *,body.off-anim *::before,body.off-anim *::after{animation:none !important;transition:none !important}
 body.off-anim .ev{opacity:1 !important;transform:none !important}
-body.off-bar #actbar,body.off-bar #tripbar,body.off-bar #jump-today,body.off-bar #upd-toast{display:none !important}
-body.off-actbar #actbar,body.off-actbar #jump-today,body.off-actbar #upd-toast{display:none !important}
-body.off-dots #tripbar{display:none !important}
+body.off-bar #tripbar,body.off-bar #jump-today{display:none !important}
 body.off-fab #chat-fab,body.off-fab #fab-bubble,body.off-fab #chat{display:none !important}
 body.off-maps details.map{display:none !important}
 body.off-shadow *{box-shadow:none !important;text-shadow:none !important;filter:none !important}
@@ -401,9 +391,15 @@ body.off-grad .hero::after{display:none !important}
 body.off-anim #splash .plane,body.off-anim #fab-bubble{animation:none !important}
 body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
 
+
+/* ---------- MOBILE SPACING ---------- */
+@media (max-width:720px){
+  main{padding-bottom:40px}
+  footer{padding-bottom:80px}
+}
 </style>
 </head>
-<body class="locked off-anim off-actbar">
+<body class="locked">
 <div id="splash" role="dialog" aria-modal="true">
   <div class="box">
     <div class="plane">✈️</div>
@@ -1207,17 +1203,10 @@ body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
     <div class="stat"><b>1</b><span>סיור רוחות רפאים 👻</span></div>
     <div class="stat"><b>∞</b><span>כדורי גלידה 🍦</span></div>
   </div>
-  <p class="weiz">ויצמן: "הכי שמח שחזרתם. עכשיו בואו נדבר על זה שלא הבאתם לי כובע מיקי." 🐕</p>
+  <p class="weiz">ויצמן: "הכי שמח שחזרתם. אפשר משהו לדרך?" 🐕</p>
 </div></div>
 </section>
 </main>
-
-<nav id="actbar" aria-label="פעולות מהירות">
-  <button id="ab-today"><span class="ic">📍</span>היום</button>
-  <button id="ab-route"><span class="ic">🗺️</span>המסלול</button>
-  <button id="ab-weiz"><span class="ic">🐕</span>ויצמן</button>
-  <button id="ab-diary"><span class="ic">📸</span>יומן</button>
-</nav>
 
 <div id="upd-toast"><span>🔄 יש גרסה חדשה של האתר</span><button id="upd-btn">רענון</button></div>
 
@@ -1276,7 +1265,7 @@ body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-15-9-TEST-D';
+var SITE_VERSION = '2026-07-15-15';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -1310,17 +1299,11 @@ var GEMINI_EMBEDDED_KEY = '';
   var splash = document.getElementById('splash');
   var now = new Date();
 
-  /* מ-16.8 והלאה: אין מסך פתיחה בכלל */
-  if (now >= TRIP.HOME){
-    if (splash) splash.remove();
-    document.body.classList.remove('locked');
-    return;
-  }
-
   var big = document.getElementById('cd-big'),
       lbl = document.getElementById('cd-lbl'),
       sub = splash.querySelector('.sub'),
       btn = document.getElementById('cd-go');
+  if (!splash) return;
 
   var weizDaily = [
     'נחתתם! תריחו את מיאמי בשבילי 🌴 (ואל תשכחו גלידה)',
@@ -1388,6 +1371,29 @@ var GEMINI_EMBEDDED_KEY = '';
   var scrollTarget = null;
 
   var dn = TRIP.dayNumber(now);
+  /* ===== מ-16.8: מסך המתנה של אריאל ===== */
+  if (now >= TRIP.HOME){
+    var h2 = splash.querySelector('h2');
+    if (h2) h2.textContent = 'חזרתם הביתה!';
+    big.textContent = '🎁';
+    big.style.fontSize = 'clamp(58px,17vw,104px)';
+    lbl.textContent = 'מזל טוב אריאל!';
+    if (sub) sub.textContent = '24 ימים · 9 ערים · קרוז · 2 פארקים – והמתנה שלך מחכה בפנים 💛';
+    var wl3 = document.getElementById('weiz-line');
+    if (wl3) wl3.textContent = 'ויצמן: "הכי שמח שחזרתם. אפשר משהו לדרך?" 🐕';
+    btn.textContent = 'לפתיחת המתנה 🎁';
+    scrollTarget = document.getElementById('summary');
+    confetti(splash);
+    btn.addEventListener('click', function(){
+      splash.style.transition = 'opacity .45s'; splash.style.opacity = '0';
+      setTimeout(function(){
+        splash.remove(); document.body.classList.remove('locked');
+        if (scrollTarget && typeof scrollTarget.scrollIntoView === 'function')
+          scrollTarget.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 460);
+    });
+    return;
+  }
   if (dn < 1){
     var days = 1 - dn;
     big.textContent = days;
@@ -1843,9 +1849,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   var cards = document.querySelectorAll('article.day');
   /* קיפול ימים שכבר הסתיימו – לחיצה על הכותרת פותחת/סוגרת */
   function lastDayOfCard(c){ return c<=1 ? c+1 : (c===2 ? 4 : c+2); }
-  var COLLAPSE_PAST = false;   /* מנוטרל זמנית לצורך אבחון */
   Array.prototype.forEach.call(cards, function(cd, c){
-    if (!COLLAPSE_PAST) return;
     if (lastDayOfCard(c) >= dn) return;
     cd.classList.add('past');
     var head = cd.querySelector('.day-head');
@@ -2023,28 +2027,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
 
 
 
-/* ===== סרגל פעולות תחתון (נייד) ===== */
-(function(){
-  var bar = document.getElementById('actbar');
-  if (!bar) return;
-  function go(sel){
-    var el = document.querySelector(sel);
-    if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-  document.getElementById('ab-today').addEventListener('click', function(){
-    var today = document.querySelector('article.day.today');
-    if (today && typeof today.scrollIntoView === 'function') today.scrollIntoView({behavior:'smooth', block:'start'});
-    else window.scrollTo({top:0, behavior:'smooth'});
-  });
-  document.getElementById('ab-route').addEventListener('click', function(){ go('#part1'); });
-  document.getElementById('ab-diary').addEventListener('click', function(){ go('#diary'); });
-  document.getElementById('ab-weiz').addEventListener('click', function(){
-    var box = document.getElementById('chat');
-    if (box.classList.contains('open')) document.getElementById('chat-x').click();
-    else document.getElementById('chat-fab').click();
-  });
-})();
-
 
 
 /* ===== פס התקדמות: 24 נקודות, אחת לכל יום ===== */
@@ -2056,7 +2038,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   for (var i = 1; i <= TRIP.DAYS; i++){
     var b = document.createElement('button');
     b.className = 'dot' + (i < dn ? ' fill' : '') + (i === dn ? ' now' : '');
-    b.title = 'יום ' + i;
+    b.textContent = i;
+    var dt = TRIP.date(i);
+    b.title = 'יום ' + i + ' · ' + dt.getDate() + '.' + (dt.getMonth()+1);
     b.setAttribute('aria-label', 'קפיצה ליום ' + i);
     (function(day){
       b.addEventListener('click', function(){
@@ -2066,6 +2050,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
     })(i);
     bar.appendChild(b);
   }
+  /* בטיול: מרכזים את היום הנוכחי בתוך הפס */
+  var cur = bar.querySelector('.dot.now');
+  if (cur) setTimeout(function(){
+    bar.scrollLeft = cur.offsetLeft - bar.clientWidth/2 + cur.offsetWidth/2;
+  }, 100);
 })();
 
 /* ===== הופעה הדרגתית בגלילה (מכבד reduced-motion, בטוח בלי JS) ===== */
@@ -2092,7 +2081,7 @@ if (location.search.indexOf('safe=1') !== -1) document.body.classList.add('safe'
 
 
 /* חותמת גרסה בפוטר */
-(function(){ var v=document.getElementById('ver'); if(v) v.textContent='גרסה ' + SITE_VERSION + ' · אבחון D: פס הנקודות מודלק · מנותק: סרגל תחתון, אנימציות'; })();
+(function(){ var v=document.getElementById('ver'); if(v) v.textContent='גרסה ' + SITE_VERSION; })();
 
 
 
@@ -2103,12 +2092,14 @@ if (location.search.indexOf('safe=1') !== -1) document.body.classList.add('safe'
   var m = location.search.match(/[?&]off=([^&]+)/);
   if (!m) return;
   var list = decodeURIComponent(m[1]).split(',');
-  var all = ['sticky','photos','anim','bar','actbar','dots','fab','maps','shadow','grad'];
+  var all = ['sticky','photos','anim','bar','fab','maps','shadow','grad'];
   if (list.indexOf('all') !== -1) list = all;
   list.forEach(function(k){ if (all.indexOf(k.trim()) !== -1) document.body.classList.add('off-' + k.trim()); });
   var v = document.getElementById('ver');
   if (v) v.textContent += ' · מנוטרל: ' + list.join(', ');
 })();
+
+
 
 </script>
 
