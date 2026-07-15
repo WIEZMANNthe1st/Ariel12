@@ -1265,7 +1265,7 @@ body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-15-15';
+var SITE_VERSION = '2026-07-16-1';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -1371,8 +1371,8 @@ var GEMINI_EMBEDDED_KEY = '';
   var scrollTarget = null;
 
   var dn = TRIP.dayNumber(now);
-  /* ===== מ-16.8: מסך המתנה של אריאל ===== */
-  if (now >= TRIP.HOME){
+  /* ===== מ-16.8: מסך המתנה של אריאל (או תצוגה מקדימה ב-?preview=summary) ===== */
+  if (now >= TRIP.HOME || location.search.indexOf('preview=summary') !== -1){
     var h2 = splash.querySelector('h2');
     if (h2) h2.textContent = 'חזרתם הביתה!';
     big.textContent = '🎁';
