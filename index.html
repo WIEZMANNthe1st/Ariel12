@@ -121,6 +121,7 @@ footer{text-align:center;color:var(--soft);font-size:13.5px;padding:34px 16px 46
 .photo.on{animation:none;background:#f3efe6}
 .photo.off{display:none}
 @keyframes shimmer{to{background-position:-200% 0}}
+@media (max-width:720px){.photo{animation:none;background:#efe9dc}}
 .photo img{width:100%;height:230px;object-fit:cover;display:block;opacity:0;transition:opacity .45s}
 .photo.on img{opacity:1}
 .photo:not(.on) figcaption{visibility:hidden}
@@ -314,7 +315,8 @@ body.dark #summary .bless{color:#c2cedb}
 
 /* ---------- STICKY DAY HEAD ---------- */
 .day{overflow:visible}
-.day-head{position:sticky;top:50px;z-index:5;border-radius:16px 16px 0 0}
+@media (min-width:721px){.day-head{position:sticky;top:50px;z-index:5}}
+.day-head{border-radius:16px 16px 0 0}
 details.map{border-radius:0 0 16px 16px;overflow:hidden}
 .photo{overflow:hidden}
 /* ---------- PAST DAYS COLLAPSE ---------- */
@@ -384,6 +386,18 @@ body.safe *,body.safe *::before,body.safe *::after{animation:none !important;tra
 body.safe .day-head{position:static !important}
 body.safe .photo{background:#f3efe6}
 body.safe .ev{opacity:1 !important;transform:none !important}
+
+
+/* ---------- KILL SWITCHES (אבחון: ?off=...) ---------- */
+body.off-sticky .day-head{position:static !important}
+body.off-photos .photo{display:none !important}
+body.off-anim *,body.off-anim *::before,body.off-anim *::after{animation:none !important;transition:none !important}
+body.off-anim .ev{opacity:1 !important;transform:none !important}
+body.off-bar #actbar,body.off-bar #tripbar{display:none !important}
+body.off-fab #chat-fab,body.off-fab #fab-bubble,body.off-fab #chat{display:none !important}
+body.off-maps details.map{display:none !important}
+body.off-shadow *{box-shadow:none !important;text-shadow:none !important;filter:none !important}
+body.off-grad .hero,body.off-grad .part-head,body.off-grad #splash{background-image:none !important}
 
 </style>
 </head>
@@ -1208,6 +1222,7 @@ body.safe .ev{opacity:1 !important;transform:none !important}
 <div id="lightbox"><img alt=""></div>
 
 <footer>
+  <span id="ver"></span><br>
   מסמך זה הוכן עבור משפחת מלצר · טיול בת מצווה ארה"ב · יולי–אוגוסט 2026 · מבוסס על גרסה 2.8 של המסלול (12/07/2026)<br>
   24 ימים · 9 ערים · קרוז אחד · 2 פארקים · אינסוף זיכרונות 💛
 </footer>
@@ -1259,7 +1274,7 @@ body.safe .ev{opacity:1 !important;transform:none !important}
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-15-1';
+var SITE_VERSION = '2026-07-15-3';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -2052,7 +2067,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
 /* ===== הופעה הדרגתית בגלילה (מכבד reduced-motion, בטוח בלי JS) ===== */
 (function(){
   if (!('IntersectionObserver' in window)) return;
-  try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch(e){}
+  try {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (matchMedia('(max-width: 720px)').matches) return;   /* בנייד: בלי אנימציות גלילה – חוסך שכבות GPU */
+  } catch(e){}
   var evs = document.querySelectorAll('.ev');
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
@@ -2066,6 +2084,27 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
 
 /* ===== מצב חילוץ: ?safe=1 בכתובת מנטרל אפקטים לצורך אבחון ===== */
 if (location.search.indexOf('safe=1') !== -1) document.body.classList.add('safe');
+
+
+
+/* חותמת גרסה בפוטר */
+(function(){ var v=document.getElementById('ver'); if(v) v.textContent='גרסה ' + SITE_VERSION; })();
+
+
+
+/* ===== מתגי ניטרול לאבחון =====
+   שימוש: ?off=sticky,photos,anim,bar,fab,maps,shadow,grad  |  ?off=all
+   דוגמה: ...github.io/Ariel12/?off=sticky,anim                        */
+(function(){
+  var m = location.search.match(/[?&]off=([^&]+)/);
+  if (!m) return;
+  var list = decodeURIComponent(m[1]).split(',');
+  var all = ['sticky','photos','anim','bar','fab','maps','shadow','grad'];
+  if (list.indexOf('all') !== -1) list = all;
+  list.forEach(function(k){ if (all.indexOf(k.trim()) !== -1) document.body.classList.add('off-' + k.trim()); });
+  var v = document.getElementById('ver');
+  if (v) v.textContent += ' · מנוטרל: ' + list.join(', ');
+})();
 
 </script>
 
