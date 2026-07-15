@@ -115,16 +115,12 @@ footer{text-align:center;color:var(--soft);font-size:13.5px;padding:34px 16px 46
 }
 
 /* ---------- PHOTOS ---------- */
-.photo{margin:0;border-bottom:1px solid var(--line);display:block;position:relative;overflow:hidden;
-  background:linear-gradient(100deg,#efe9dc 40%,#faf6ec 50%,#efe9dc 60%);background-size:200% 100%;
-  animation:shimmer 1.4s infinite linear}
-.photo.on{animation:none;background:#f3efe6}
+.photo{margin:0;border-bottom:1px solid var(--line);display:none;position:relative;overflow:hidden;background:#f3efe6}
+.photo.on{display:block}
 .photo.off{display:none}
 @keyframes shimmer{to{background-position:-200% 0}}
 @media (max-width:720px){.photo{animation:none;background:#efe9dc}}
-.photo img{width:100%;height:230px;object-fit:cover;display:block;opacity:0;transition:opacity .45s}
-.photo.on img{opacity:1}
-.photo:not(.on) figcaption{visibility:hidden}
+.photo img{width:100%;height:230px;object-fit:cover;display:block}
 @media (prefers-reduced-motion: reduce){.photo{animation:none}}
 .photo figcaption{font-size:12px;color:var(--soft);padding:5px 20px;background:#fbf9f4}
 .photo2{display:grid;grid-template-columns:1fr 1fr;gap:2px}
@@ -273,8 +269,7 @@ body.dark td{border-color:var(--line)}
 body.dark tr:nth-child(even) td{background:#141d26}
 body.dark .wx{background:#18222d;color:#c2cedb;border-color:var(--line)}
 body.dark details.map{background:#141d26}
-body.dark .photo{background:linear-gradient(100deg,#141d26 40%,#1c2833 50%,#141d26 60%);background-size:200% 100%}
-body.dark .photo.on{background:#141d26}
+body.dark .photo{background:#141d26}
 body.dark .photo figcaption{background:#141d26}
 body.dark .askw button{background:#1b1530;border-color:#8a6ad6;color:#b9a3ef}
 body.dark .cpy{background:#18222d}
@@ -313,9 +308,8 @@ body.dark #summary .bless{color:#c2cedb}
   font-weight:900;font-size:14px;padding:7px 16px;cursor:pointer;white-space:nowrap}
 
 
-/* ---------- STICKY DAY HEAD ---------- */
-.day{overflow:visible}
-@media (min-width:721px){.day-head{position:sticky;top:50px;z-index:5}}
+/* ---------- (sticky day head – מנוטרל) ---------- */
+.day{overflow:hidden}
 .day-head{border-radius:16px 16px 0 0}
 details.map{border-radius:0 0 16px 16px;overflow:hidden}
 .photo{overflow:hidden}
@@ -393,15 +387,23 @@ body.off-sticky .day-head{position:static !important}
 body.off-photos .photo{display:none !important}
 body.off-anim *,body.off-anim *::before,body.off-anim *::after{animation:none !important;transition:none !important}
 body.off-anim .ev{opacity:1 !important;transform:none !important}
-body.off-bar #actbar,body.off-bar #tripbar{display:none !important}
+body.off-bar #actbar,body.off-bar #tripbar,body.off-bar #jump-today,body.off-bar #upd-toast{display:none !important}
+body.off-actbar #actbar,body.off-actbar #jump-today,body.off-actbar #upd-toast{display:none !important}
+body.off-dots #tripbar{display:none !important}
 body.off-fab #chat-fab,body.off-fab #fab-bubble,body.off-fab #chat{display:none !important}
 body.off-maps details.map{display:none !important}
 body.off-shadow *{box-shadow:none !important;text-shadow:none !important;filter:none !important}
 body.off-grad .hero,body.off-grad .part-head,body.off-grad #splash{background-image:none !important}
+body.off-grad .hero{background:#0e8a93 !important}
+body.off-grad .part-head{background:var(--acc) !important}
+body.off-grad #splash{background:#072530 !important}
+body.off-grad .hero::after{display:none !important}
+body.off-anim #splash .plane,body.off-anim #fab-bubble{animation:none !important}
+body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
 
 </style>
 </head>
-<body class="locked">
+<body class="locked off-anim off-actbar">
 <div id="splash" role="dialog" aria-modal="true">
   <div class="box">
     <div class="plane">✈️</div>
@@ -1274,7 +1276,7 @@ body.off-grad .hero,body.off-grad .part-head,body.off-grad #splash{background-im
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-15-3';
+var SITE_VERSION = '2026-07-15-9-TEST-D';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -1841,7 +1843,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   var cards = document.querySelectorAll('article.day');
   /* קיפול ימים שכבר הסתיימו – לחיצה על הכותרת פותחת/סוגרת */
   function lastDayOfCard(c){ return c<=1 ? c+1 : (c===2 ? 4 : c+2); }
+  var COLLAPSE_PAST = false;   /* מנוטרל זמנית לצורך אבחון */
   Array.prototype.forEach.call(cards, function(cd, c){
+    if (!COLLAPSE_PAST) return;
     if (lastDayOfCard(c) >= dn) return;
     cd.classList.add('past');
     var head = cd.querySelector('.day-head');
@@ -2088,7 +2092,7 @@ if (location.search.indexOf('safe=1') !== -1) document.body.classList.add('safe'
 
 
 /* חותמת גרסה בפוטר */
-(function(){ var v=document.getElementById('ver'); if(v) v.textContent='גרסה ' + SITE_VERSION; })();
+(function(){ var v=document.getElementById('ver'); if(v) v.textContent='גרסה ' + SITE_VERSION + ' · אבחון D: פס הנקודות מודלק · מנותק: סרגל תחתון, אנימציות'; })();
 
 
 
@@ -2099,7 +2103,7 @@ if (location.search.indexOf('safe=1') !== -1) document.body.classList.add('safe'
   var m = location.search.match(/[?&]off=([^&]+)/);
   if (!m) return;
   var list = decodeURIComponent(m[1]).split(',');
-  var all = ['sticky','photos','anim','bar','fab','maps','shadow','grad'];
+  var all = ['sticky','photos','anim','bar','actbar','dots','fab','maps','shadow','grad'];
   if (list.indexOf('all') !== -1) list = all;
   list.forEach(function(k){ if (all.indexOf(k.trim()) !== -1) document.body.classList.add('off-' + k.trim()); });
   var v = document.getElementById('ver');
