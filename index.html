@@ -115,9 +115,16 @@ footer{text-align:center;color:var(--soft);font-size:13.5px;padding:34px 16px 46
 }
 
 /* ---------- PHOTOS ---------- */
-.photo{margin:0;border-bottom:1px solid var(--line);background:#f3efe6;display:none}
-.photo.on{display:block}
-.photo img{width:100%;height:230px;object-fit:cover;display:block}
+.photo{margin:0;border-bottom:1px solid var(--line);display:block;position:relative;overflow:hidden;
+  background:linear-gradient(100deg,#efe9dc 40%,#faf6ec 50%,#efe9dc 60%);background-size:200% 100%;
+  animation:shimmer 1.4s infinite linear}
+.photo.on{animation:none;background:#f3efe6}
+.photo.off{display:none}
+@keyframes shimmer{to{background-position:-200% 0}}
+.photo img{width:100%;height:230px;object-fit:cover;display:block;opacity:0;transition:opacity .45s}
+.photo.on img{opacity:1}
+.photo:not(.on) figcaption{visibility:hidden}
+@media (prefers-reduced-motion: reduce){.photo{animation:none}}
 .photo figcaption{font-size:12px;color:var(--soft);padding:5px 20px;background:#fbf9f4}
 .photo2{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .photo2 .photo{border:0}
@@ -265,7 +272,8 @@ body.dark td{border-color:var(--line)}
 body.dark tr:nth-child(even) td{background:#141d26}
 body.dark .wx{background:#18222d;color:#c2cedb;border-color:var(--line)}
 body.dark details.map{background:#141d26}
-body.dark .photo{background:#141d26}
+body.dark .photo{background:linear-gradient(100deg,#141d26 40%,#1c2833 50%,#141d26 60%);background-size:200% 100%}
+body.dark .photo.on{background:#141d26}
 body.dark .photo figcaption{background:#141d26}
 body.dark .askw button{background:#1b1530;border-color:#8a6ad6;color:#b9a3ef}
 body.dark .cpy{background:#18222d}
@@ -302,6 +310,73 @@ body.dark #summary .bless{color:#c2cedb}
   font-size:14.5px;font-weight:700;align-items:center;gap:12px;max-width:92vw}
 #upd-toast button{border:0;border-radius:999px;background:#ffd166;color:#1b2a3a;font-family:'Heebo';
   font-weight:900;font-size:14px;padding:7px 16px;cursor:pointer;white-space:nowrap}
+
+
+/* ---------- STICKY DAY HEAD ---------- */
+.day{overflow:visible}
+.day-head{position:sticky;top:50px;z-index:5;border-radius:16px 16px 0 0}
+details.map{border-radius:0 0 16px 16px;overflow:hidden}
+.photo{overflow:hidden}
+/* ---------- PAST DAYS COLLAPSE ---------- */
+.day.past:not(.past-open) .tl,
+.day.past:not(.past-open) .photo,
+.day.past:not(.past-open) details.map,
+.day.past:not(.past-open) .askw,
+.day.past:not(.past-open) .navlink{display:none}
+.day.past .day-head{cursor:pointer}
+.day.past:not(.past-open){box-shadow:none;opacity:.82}
+.day.past:not(.past-open) .day-head{border-radius:16px;border-bottom:0;padding:10px 20px}
+.past-chip{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#1c6b38;background:#e3f5e9;border:1.5px solid #79c795;border-radius:999px;padding:2px 10px;margin-inline-start:8px}
+.past-arrow{margin-inline-start:auto;color:var(--soft);font-size:13px;transition:transform .2s}
+.day.past.past-open .past-arrow{transform:rotate(180deg)}
+body.dark .past-chip{background:#122e1c;color:#8fd8a8;border-color:#2c6b44}
+
+
+/* ---------- TABULAR NUMBERS ---------- */
+.ev .time,.day-num b,.stat b,#cd-big,.wx{font-variant-numeric:tabular-nums}
+/* ---------- STAR OF THE DAY ---------- */
+.star{display:inline-block;vertical-align:2px;margin-right:8px;font-size:11.5px;font-weight:900;color:#5c4300;
+  background:linear-gradient(90deg,#ffd166,#ffb84d);border-radius:999px;padding:1px 10px;white-space:nowrap;
+  box-shadow:0 2px 8px rgba(255,184,77,.45)}
+/* ---------- BOTTOM ACTION BAR (mobile) ---------- */
+#actbar{display:none}
+@media (max-width:720px){
+  #actbar{position:fixed;bottom:0;left:0;right:0;z-index:180;display:flex;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom)}
+  #actbar button{flex:1;border:0;background:none;font-family:'Heebo';cursor:pointer;
+    padding:8px 0 9px;color:#42505f;font-size:11px;font-weight:800;line-height:1.2}
+  #actbar button .ic{display:block;font-size:21px;margin-bottom:1px}
+  #actbar button:active{transform:scale(.94)}
+  body.dark #actbar{background:rgba(16,24,32,.96);border-top-color:var(--line)}
+  body.dark #actbar button{color:#c2cedb}
+  main{padding-bottom:100px}
+  footer{padding-bottom:110px}
+  /* פינוי מקום לאלמנטים הצפים מעל הסרגל */
+  #chat-fab{bottom:80px}
+  #fab-bubble{bottom:152px}
+  #jump-today{display:none !important}   /* הסרגל מחליף אותו בנייד */
+  #upd-toast{bottom:150px}
+  #chat{bottom:76px;height:min(560px,calc(100vh - 96px))}
+}
+
+
+/* ---------- TRIP PROGRESS DOTS ---------- */
+#tripbar{display:flex;justify-content:center;gap:5px;padding:7px 12px 9px;background:#fff;border-top:1px solid #f1ecdf}
+#tripbar .dot{width:8px;height:8px;border-radius:50%;border:1.5px solid #cfc7b6;background:#fff;cursor:pointer;padding:0;transition:transform .15s}
+#tripbar .dot.fill{background:#0e8a93;border-color:#0e8a93}
+#tripbar .dot.now{background:#f2678d;border-color:#f2678d;transform:scale(1.5);box-shadow:0 0 0 3px rgba(242,103,141,.25)}
+#tripbar .dot:hover{transform:scale(1.4)}
+body.dark #tripbar{background:#141e29;border-top-color:#1c2833}
+body.dark #tripbar .dot{background:#141e29;border-color:#3a4a5c}
+body.dark #tripbar .dot.fill{background:#0e8a93;border-color:#0e8a93}
+body.dark #tripbar .dot.now{background:#f2678d;border-color:#f2678d}
+/* ---------- SCROLL REVEAL ---------- */
+.ev.pre{opacity:0;transform:translateY(10px)}
+.ev.vis{opacity:1;transform:none;transition:opacity .5s ease,transform .5s ease}
+/* ---------- TOUCH FEEDBACK ---------- */
+button,nav a,.navlink,.prep-item,.dot{transition:transform .08s ease}
+button:active,nav a:active,.navlink:active{transform:scale(.96)}
 
 </style>
 </head>
@@ -352,6 +427,7 @@ body.dark #summary .bless{color:#c2cedb}
     <a class="px" href="#rain">🌧️ תוכנית גשם</a>
     <a class="px" href="#diary">📸 יומן הטיול</a>
   </div>
+<div id="tripbar" aria-label="התקדמות הטיול"></div>
 </nav>
 
 <main>
@@ -379,7 +455,7 @@ body.dark #summary .bless{color:#c2cedb}
       <div class="tip">היום כולו גמיש! אם אתם עייפים: מלון, מנוחה, בריכה. כל מה שמתחת – בונוס בלבד, בלי שעות קשיחות.</div></div>
     <div class="ev"><span class="time soft">~09:00</span><h4><span class="em">🥐</span>ארוחת בוקר ב-Bayside Marketplace</h4>
       <p>3 דקות הליכה מהמלון. מרכז קניות פתוח על המרינה עם טיילת, בתי קפה ומסעדות – אווירת חופשה מיד עם הנחיתה, בלי נסיעות.</p></div>
-    <div class="ev"><span class="time">11:00</span><h4><span class="em">🍦</span>Museum of Ice Cream Miami</h4>
+    <div class="ev"><span class="time">11:00</span><h4><span class="em">🍦</span>Museum of Ice Cream Miami<span class="star">⭐ שיא היום</span></h4>
       <p>5 דקות הליכה מ-Bayside. חוויה צבעונית ומתוקה שאריאל תאהב.</p>
       <div class="tip">להזמין כרטיסים מראש ב-museumoficecream.com – נגמר בקיץ!</div></div>
     <div class="ev"><span class="time soft">~13:00</span><h4><span class="em">🐕</span>אחרי הגלידה – בוחרים לפי מצב רוח <span class="skip">ניתן לוויתור</span></h4>
@@ -409,7 +485,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>שני תאי בלקוני מחוברים: אור + אריאל בתא אחד, נועה + תום + עידו בשני. <span class="done">צ'ק-אין אונליין בוצע ✓</span></p></div>
     <div class="ev"><span class="time">12:00</span><h4><span class="em">🧭</span>חקרו את האונייה</h4>
       <p>18 קומות, 28 מסעדות, 3 בריכות. אור: Open Bar + Specialty Dining. אריאל: Soda Package + Kid Dining.</p></div>
-    <div class="ev"><span class="time">16:00</span><h4><span class="em">🎉</span>Sail Away Party!</h4>
+    <div class="ev"><span class="time">16:00</span><h4><span class="em">🎉</span>Sail Away Party!<span class="star">⭐ שיא היום</span></h4>
       <p>אל תפספסו – חוויה בלתי נשכחת על הסיפון כשהאונייה יוצאת מהנמל.</p></div>
   </div>
   <details class="map"><summary>🗺️ מפת היום – מהמלון לנמל מיאמי</summary>
@@ -426,7 +502,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div class="ev"><span class="time">25.7<br>08:00</span><h4><span class="em">🏴‍☠️</span>נאסאו, בהאמה – עגינה 08:00–17:00</h4>
       <p><b>מסלול היום – היסטוריה + חוף (בלי לשלם על ריזורט):</b> יורדים מהאונייה והולכים כ-10 דקות לדאונטאון אל <b>Pirates of Nassau Museum</b> – מוזיאון אינטראקטיבי וממוזג (כשעה) עם ספינת פיראטים משוחזרת. משם עוד 10–15 דקות הליכה לאורך קו החוף ל-<b>Junkanoo Beach</b> – חוף ציבורי חינמי, מים רדודים, דוכני שייקים ומוזיקה קריבית. בדרך חזרה: <b>Straw Market</b> הצבעוני למזכרות קטנות, וחזרה לאונייה ברגל.</p>
       <div class="warn">⏰ חזרו לנמל עד 16:30. האונייה לא מחכה!</div></div>
-    <div class="ev"><span class="time">26.7<br>08:00</span><h4><span class="em">🤿</span>Great Stirrup Cay – האי הפרטי של NCL</h4>
+    <div class="ev"><span class="time">26.7<br>08:00</span><h4><span class="em">🤿</span>Great Stirrup Cay – האי הפרטי של NCL<span class="star">⭐ שיא היום</span></h4>
       <p>טנדר לחוף. ה-Open Bar עובד גם על האי! חדש ב-2026: Great Tides Waterpark – זיפליין וכדורעף חופים.</p>
       <div class="tip">הזמינו cabana מראש · Water shoes לשונית · Snorkeling מעולה!</div></div>
   </div>
@@ -445,7 +521,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>אל תפספסו את ארוחת הבוקר האחרונה על האונייה – כלולה!</p></div>
     <div class="ev"><span class="time">09:00</span><h4><span class="em">🚕</span>Uber מהנמל ל-Residence Inn Miami Beach</h4>
       <p>קודם כל מניחים את המזוודות! צ'ק-אין רשמי רק מ-16:00 – אבל המלון שומר מזוודות גם לפני. שאלו על Early Check-in. ארוחת בוקר כלולה בהמשך השהות.</p></div>
-    <div class="ev"><span class="time">09:30</span><h4><span class="em">🎨</span>Wynwood Walls</h4>
+    <div class="ev"><span class="time">09:30</span><h4><span class="em">🎨</span>Wynwood Walls<span class="star">⭐ שיא היום</span></h4>
       <p>מתחם הגרפיטי והאמנות המפורסם.</p>
       <div class="tip">הגיעו ב-09:30 לפני ההמון – טיפ #1 בכל קבוצת פייסבוק מיאמי!</div></div>
     <div class="ev"><span class="time">11:30</span><h4><span class="em">🇨🇺</span>Little Havana + מסעדת Versailles</h4>
@@ -470,7 +546,7 @@ body.dark #summary .bless{color:#c2cedb}
   <div class="tl">
     <div class="ev"><span class="time">09:00</span><h4><span class="em">☕</span>Uber לסאות' ביץ' <span class="skip">ניתן לוויתור</span></h4>
       <p>אופציונלי: קפה על Ocean Drive ב-News Cafe עם נוף לים.</p></div>
-    <div class="ev"><span class="time">10:00</span><h4><span class="em">🌊</span>South Beach – ים!</h4>
+    <div class="ev"><span class="time">10:00</span><h4><span class="em">🌊</span>South Beach – ים!<span class="star">⭐ שיא היום</span></h4>
       <p>חוף 12th St הכי שקט.</p>
       <div class="tip">שעת הזהב לצילומים על Ocean Drive: 8–10 בבוקר, לפני ההמון.</div></div>
     <div class="ev"><span class="time">12:30</span><h4><span class="em">🍗</span>צהריים – Yardbird Southern Table (Lincoln Road)</h4>
@@ -494,7 +570,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div class="ev"><span class="time">07:20</span><h4><span class="em">🚗</span>איסוף רכב Alamo – ‏4332 Collins Ave</h4>
       <p>Chrysler Pacifica ל-7 נוסעים. בוסטרים לילדים כלולים בוואוצ'ר – מוודאים בעת האיסוף.</p>
       <div class="warn">חובה לבקש SunPass / Toll Pass יומי. בלי זה = קנסות בדואר חודשים אחרי!</div></div>
-    <div class="ev"><span class="time">08:30</span><h4><span class="em">🐊</span>Coopertown Airboats – סירת אוויר באוורגליידס</h4>
+    <div class="ev"><span class="time">08:30</span><h4><span class="em">🐊</span>Coopertown Airboats – סירת אוויר באוורגליידס<span class="star">⭐ שיא היום</span></h4>
       <p>40 דקות שייט + מופע אליגטורים.</p>
       <div class="warn">דוחה יתושים DEET 30% – חובה מוחלטת ביולי!</div></div>
     <div class="ev"><span class="time">11:30</span><h4><span class="em">🛣️</span>נסיעה לאורלנדו</h4>
@@ -528,7 +604,7 @@ body.dark #summary .bless{color:#c2cedb}
   <div class="tl">
     <div class="ev"><span class="time">08:30</span><h4><span class="em">🚪</span>הגעה לשער IOA</h4>
       <p>30 דקות לפני הפתיחה. בפתיחה: לא סוטים לשום מקום – ישר ל-Hagrid's!</p></div>
-    <div class="ev"><span class="time">09:00</span><h4><span class="em">🏍️</span>Hagrid's Magical Creatures Motorbike <small>(122 ס"מ)</small></h4>
+    <div class="ev"><span class="time">09:00</span><h4><span class="em">🏍️</span>Hagrid's Magical Creatures Motorbike <small>(122 ס"מ)</small><span class="star">⭐ שיא היום</span></h4>
       <p>Rope Drop – תור 15–30 דקות. אחרי 09:30 התור כבר +60.</p>
       <div class="tip">האטרקציה #1 ביוניברסל. אופנוע עדיף על sidecar!</div></div>
     <div class="ev"><span class="time">09:45</span><h4><span class="em">🦖</span>Jurassic World VelociCoaster <small>(130 ס"מ)</small></h4>
@@ -573,7 +649,7 @@ body.dark #summary .bless{color:#c2cedb}
   <div class="tl">
     <div class="ev"><span class="time">08:30</span><h4><span class="em">🚪</span>הגעה לשער Universal Studios</h4>
       <p>בפתיחה: ישר פנימה וימינה לאורך האגם (~8 דקות) ל-Diagon Alley – לא סוטים!</p></div>
-    <div class="ev"><span class="time">09:00</span><h4><span class="em">🏦</span>Harry Potter – Escape from Gringotts <small>(107 ס"מ)</small></h4>
+    <div class="ev"><span class="time">09:00</span><h4><span class="em">🏦</span>Harry Potter – Escape from Gringotts <small>(107 ס"מ)</small><span class="star">⭐ שיא היום</span></h4>
       <p>מלך הפארק: Coaster + 4D + אנימטרוניקה + אש. בפתיחה התור 15–25 דקות; עד 10:30 הוא מגיע ל-90!</p></div>
     <div class="ev"><span class="time">09:45</span><h4><span class="em">🪄</span>שרביטים אינטראקטיביים ב-Diagon Alley</h4>
       <p>8–10 נקודות ברחוב, 40 דקות של קסם.</p></div>
@@ -609,7 +685,7 @@ body.dark #summary .bless{color:#c2cedb}
   <div class="day-head"><div class="day-num"><b>10</b><span>יום</span></div>
     <div><h3>Orlando Premium Outlets – International Drive 🛍️</h3><div class="date">שבת, 1 באוגוסט</div></div></div>
   <div class="tl">
-    <div class="ev"><span class="time">10:00</span><h4><span class="em">🛍️</span>Orlando Premium Outlets – International Drive</h4>
+    <div class="ev"><span class="time">10:00</span><h4><span class="em">🛍️</span>Orlando Premium Outlets – International Drive<span class="star">⭐ שיא היום</span></h4>
       <p>‏+500 חנויות: Nike, Gap, Coach, Michael Kors, Levi's – הנחות גדולות. היום הזה הוא יום קניות בלי שום דבר קבוע – אפשר לשנות סדר ושעות בחופשיות.</p>
       <div class="tip">אזור ענק עם שני "כפרי" חנויות מקושרים בשאטל פנימי חינם – לתכנן הפסקות אוכל באמצע.</div></div>
     <div class="ev"><span class="time">14:00</span><h4><span class="em">🍔</span>צהריים באזור I-Drive</h4>
@@ -632,7 +708,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div class="ev"><span class="time soft">בוקר</span><h4><span class="em">😎</span>יום חופשי וגמיש! <span class="skip">ניתן לוויתור</span></h4>
       <p>בריכה בפארקוויי, שינה משלימה, אריזה הדרגתית. אין שום דבר קבוע עד הצהריים.</p>
       <div class="tip">לשיקול: Vineland Premium Outlets – אאוטלט קטן יותר (+160 חנויות), קרוב לדיסני ספרינגס. רק אם נשאר חשק לקניות אחרי אתמול – ה-T-Rex ב-14:00 הוא העוגן היחיד של היום.</div></div>
-    <div class="ev"><span class="time">14:00</span><h4><span class="em">🦖</span>T-Rex Cafe, Disney Springs – ארוחת צהריים <span class="done">מאושרת ✓</span></h4>
+    <div class="ev"><span class="time">14:00</span><h4><span class="em">🦖</span>T-Rex Cafe, Disney Springs – ארוחת צהריים <span class="done">מאושרת ✓</span><span class="star">⭐ שיא היום</span></h4>
       <p>שולחן ל-5 סועדים, על שם Mr. Or Melcer.</p></div>
     <div class="ev"><span class="time">15:30</span><h4><span class="em">🧱</span>המשך ב-Disney Springs – LEGO Store <span class="skip">ניתן לוויתור</span></h4>
       <p>חנות לגו ענקית, Sprinkles Cupcakes. כניסה חינם.</p></div>
@@ -665,7 +741,7 @@ body.dark #summary .bless{color:#c2cedb}
       <div class="tip">חניה: Visitor Center Parking – בעיה ידועה בעיר! הכול ברגל משם.</div></div>
     <div class="ev"><span class="time">12:00</span><h4><span class="em">🥘</span>צהריים – Columbia Restaurant (מ-1905)</h4>
       <p>Chicken, Empanadas, Spanish Bean Soup. מומלץ להזמין מקום: columbiarestaurant.com ‏(TripAdvisor #1 בעיר).</p></div>
-    <div class="ev"><span class="time">13:30</span><h4><span class="em">🏰</span>Castillo de San Marcos ‏(1672)</h4>
+    <div class="ev"><span class="time">13:30</span><h4><span class="em">🏰</span>Castillo de San Marcos ‏(1672)<span class="star">⭐ שיא היום</span></h4>
       <p>המבצר העתיק בארה"ב. עולים על החומות, תותחים.</p></div>
     <div class="ev"><span class="time">15:30</span><h4><span class="em">🏴‍☠️</span>St. Augustine Pirate &amp; Treasure Museum <span class="skip">ניתן לוויתור</span></h4>
       <p>מאוד אינטראקטיבי לילדים – שווה כל רגע!</p>
@@ -701,7 +777,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>"Pralines = the sweet of Savannah". המעבורת על הנהר חינם – 5 דקות לאי!</p></div>
     <div class="ev"><span class="time">18:00</span><h4><span class="em">🍽️</span>ערב – The Olde Pink House ‏(1771)</h4>
       <p>Pecan Chicken Tender, Beef Tenderloin. ה-Tavern למטה = בלי הזמנה אם מגיעים ב-18:00. לחדרים למעלה: הזמנה בטלפון.</p></div>
-    <div class="ev"><span class="time">20:30</span><h4><span class="em">👻</span>סיור רוחות רפאים בסוואנה!</h4>
+    <div class="ev"><span class="time">20:30</span><h4><span class="em">👻</span>סיור רוחות רפאים בסוואנה!<span class="star">⭐ שיא היום</span></h4>
       <p>סוואנה נחשבת "העיר הכי רדופה באמריקה". מומלץ למשפחות: Ghosts &amp; Gravestones Trolley Tour – טרולי לילה, כ-90 דקות, מתאים לילדים. להזמין מראש: ghostsandgravestones.com/savannah. חלופה רגלית: Ghost City Tours.</p></div>
   </div>
   <details class="map"><summary>🗺️ מפת היום – הרובע ההיסטורי, Forsyth Park ו-River Street</summary>
@@ -727,7 +803,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div class="ev"><span class="time">17:00</span><h4><span class="em">🐺</span>הגעה ל-Great Wolf Lodge Williamsburg + צ'ק-אין</h4>
       <p>KidCabin Suite עם מרפסת (קווין + מיטת קומתיים + יחיד + ספה), 2 לילות.</p>
       <div class="tip">"Great Wolf שינה את הטיול. הילדים לא רצו לצאת!"</div></div>
-    <div class="ev"><span class="time">18:00</span><h4><span class="em">💦</span>פארק המים במלון!</h4>
+    <div class="ev"><span class="time">18:00</span><h4><span class="em">💦</span>פארק המים במלון!<span class="star">⭐ שיא היום</span></h4>
       <p>Wave pool, מגלשות, Lazy River, אזור ילדים – הכול כלול בלינה, פתוח עד הערב.</p></div>
   </div>
   <details class="map"><summary>🗺️ מפת היום – יעד הנסיעה: Great Wolf Lodge</summary>
@@ -741,7 +817,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div><h3>Colonial Williamsburg + פארק מים 🏘️</h3><div class="date">חמישי, 6 באוגוסט</div></div></div>
   <figure class="photo on"><img alt="Great Wolf Lodge" src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Wolf%20Lodge%20wave%20pool%2C%20Grand%20Mound%2C%20Washington.jpg?width=1100" referrerpolicy="no-referrer" onerror="this.closest('figure').style.display='none'"><figcaption>Great Wolf Lodge – פארק המים המקורה · צילום: Wikimedia Commons</figcaption></figure>
   <div class="tl">
-    <div class="ev"><span class="time">09:00</span><h4><span class="em">🎩</span>Colonial Williamsburg – Explorer Pass</h4>
+    <div class="ev"><span class="time">09:00</span><h4><span class="em">🎩</span>Colonial Williamsburg – Explorer Pass<span class="star">⭐ שיא היום</span></h4>
       <p>כניסה לכל הבניינים: שחקנים בתלבושות תקופתיות, נפח, אופה.</p>
       <div class="tip">"הילדים שאלו שאלות לנפח שעה שלמה!"</div></div>
     <div class="ev"><span class="time">14:00</span><h4><span class="em">💦</span>חזרה לפארק המים</h4>
@@ -780,7 +856,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>טיילת על הפוטומק, מזרקות שהילדים אוהבים; אופציה להשכרת קיאק/סאפ ב-Key Bridge Boathouse.</p></div>
     <div class="ev"><span class="time">17:00</span><h4><span class="em">🏊</span>חזרה למלון – מנוחה + בריכה</h4><p></p></div>
     <div class="ev"><span class="time">19:00</span><h4><span class="em">🍽️</span>ארוחת ערב ליד המלון / Rosslyn</h4><p></p></div>
-    <div class="ev"><span class="time">20:30</span><h4><span class="em">🌙</span>סיור ערב באנדרטאות (רכוב או רגלי)</h4>
+    <div class="ev"><span class="time">20:30</span><h4><span class="em">🌙</span>סיור ערב באנדרטאות (רכוב או רגלי)<span class="star">⭐ שיא היום</span></h4>
       <p>Lincoln Memorial, Reflecting Pool, WWII Memorial, Washington Monument.</p>
       <div class="tip">בלילה המקום מרשים יותר ופחות חם. חניה ערב ליד Lincoln בד"כ פשוטה, או 15 דקות הליכה מהמלון דרך Memorial Bridge.</div></div>
   </div>
@@ -795,7 +871,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div><h3>מוזיאוני הסמיתסוניאן + The Wharf 🚀</h3><div class="date">שבת, 8 באוגוסט</div></div></div>
   <figure class="photo" data-wiki="National Air and Space Museum"><img alt="מוזיאון האוויר והחלל"><figcaption>מוזיאון האוויר והחלל · צילום: Wikipedia</figcaption></figure>
   <div class="tl">
-    <div class="ev"><span class="time">10:00</span><h4><span class="em">🚀</span>National Air and Space Museum <span class="done">הזמנה בוצעה ✓</span></h4>
+    <div class="ev"><span class="time">10:00</span><h4><span class="em">🚀</span>National Air and Space Museum <span class="done">הזמנה בוצעה ✓</span><span class="star">⭐ שיא היום</span></h4>
       <p>Apollo 11, ‏Moon Rock = אפשר לגעת! שער כניסה בצד הצפוני (650 Jefferson Drive SW).</p>
       <div class="tip">כרטיסי Timed Entry (חינם) לכניסה ב-10:00, ללא כניסה מוקדמת. כרטיסי QR נדרשים לכל מבקר (כולל תינוקות) – להציג מהנייד.</div></div>
     <div class="ev"><span class="time">14:00</span><h4><span class="em">💎</span>Natural History Museum</h4>
@@ -815,7 +891,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div><h3>גן חיות · מרגלים · Tidal Basin 🐼</h3><div class="date">ראשון, 9 באוגוסט</div></div></div>
   <figure class="photo" data-wiki="Smithsonian National Zoological Park"><img alt="גן החיות הלאומי – הפנדות חזרו!"><figcaption>גן החיות הלאומי – הפנדות חזרו! · צילום: Wikipedia</figcaption></figure>
   <div class="tl">
-    <div class="ev"><span class="time">09:00</span><h4><span class="em">🐼</span>National Zoo – הפנדות חזרו! <span class="done">הזמנה בוצעה ✓</span></h4>
+    <div class="ev"><span class="time">09:00</span><h4><span class="em">🐼</span>National Zoo – הפנדות חזרו! <span class="done">הזמנה בוצעה ✓</span><span class="star">⭐ שיא היום</span></h4>
       <p>כניסה דרך השער הראשי. כרטיסי Timed Entry (חינם) + כרטיס חניה יומי לאותו יום.</p></div>
     <div class="ev"><span class="time">13:00</span><h4><span class="em">🕵️</span>International Spy Museum</h4>
       <p>זהות בדויה, Spy gadgets.</p>
@@ -840,7 +916,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>I-95 צפונה, מעקף בולטימור (I-695) ואז I-83 צפונה להריסבורג, כ-220 ק"מ, 2.5 שעות.</p></div>
     <div class="ev"><span class="time">12:00</span><h4><span class="em">🏨</span>צ'ק-אין Days Inn Hershey</h4>
       <p>לילה אחד, ארוחת בוקר כלולה, חניה חינם.</p></div>
-    <div class="ev"><span class="time">13:00</span><h4><span class="em">🍫</span>Hershey's Chocolate World</h4>
+    <div class="ev"><span class="time">13:00</span><h4><span class="em">🍫</span>Hershey's Chocolate World<span class="star">⭐ שיא היום</span></h4>
       <p>כניסה חינם! Chocolate Tour + Create Your Own Candy Bar.</p>
       <div class="tip">"Create Candy Bar = אוכלים מה שבנינו!"</div></div>
     <div class="ev"><span class="time">15:30</span><h4><span class="em">🦋</span>Hershey Gardens + Butterfly Atrium <span class="skip">ניתן לוויתור</span></h4>
@@ -872,7 +948,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>PA-283 להריסבורג–לנקסטר ואז PA Turnpike ‏(I-76) מזרחה, כ-150 ק"מ, 1.5–2 שעות. חונים ליד Independence Visitor Center – הכול ברגל!</p></div>
     <div class="ev"><span class="time">11:00</span><h4><span class="em">🏨</span>צ'ק-אין Hilton Garden Inn Center City</h4>
       <p>לילה אחד.</p></div>
-    <div class="ev"><span class="time">12:00</span><h4><span class="em">🔔</span>Liberty Bell + Independence Hall</h4>
+    <div class="ev"><span class="time">12:00</span><h4><span class="em">🔔</span>Liberty Bell + Independence Hall<span class="star">⭐ שיא היום</span></h4>
       <p>שם חתמו על העצמאות!</p>
       <div class="tip">Free Timed Ticket מה-Visitor Center – קחו מיד!</div></div>
     <div class="ev"><span class="time">13:30</span><h4><span class="em">🥖</span>Reading Terminal Market ‏(1892)</h4>
@@ -914,7 +990,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>Classic NY Cheesecake לקינוח, או ליד המלון.</p></div>
     <div class="ev"><span class="time">17:45</span><h4><span class="em">💡</span>הליכה ל-Times Square</h4>
       <p>בדרך: חנויות M&amp;M's ו-Hershey's לילדים.</p></div>
-    <div class="ev"><span class="time">18:45</span><h4><span class="em">🦁</span>The Lion King בברודוויי! <span class="done">הזמנה מאושרת ✓</span></h4>
+    <div class="ev"><span class="time">18:45</span><h4><span class="em">🦁</span>The Lion King בברודוויי! <span class="done">הזמנה מאושרת ✓</span><span class="star">⭐ שיא היום</span></h4>
       <p>Minskoff Theatre, ‏200 W 45th St. שיא הטיול.</p>
       <div class="warn"><b>שימו לב:</b> ההזמנה כוללת 2 כרטיסים בלבד (Section ORCH, Row T) – הורה אחד + ילד אחד צופים במחזמר. שאר בני המשפחה (3 אנשים) צריכים תוכנית ערב חלופית: המשך בטיימס סקוור (Hershey's / M&amp;M's Store), ארוחת ערב נינוחה, או חזרה למלון למנוחה לפני יום עמוס.</div></div>
   </div>
@@ -933,7 +1009,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>קו 7 מטיימס סקוור, 2 תחנות.</p></div>
     <div class="ev"><span class="time">09:30</span><h4><span class="em">🏗️</span>The Vessel – המבנה האיקוני של Hudson Yards</h4>
       <p>צפייה מהבסיס חינם; טיפוס בכרטיס מוזמן מראש.</p></div>
-    <div class="ev"><span class="time">10:15</span><h4><span class="em">🌿</span>High Line – מצפון לדרום</h4>
+    <div class="ev"><span class="time">10:15</span><h4><span class="em">🌿</span>High Line – מצפון לדרום<span class="star">⭐ שיא היום</span></h4>
       <p>(הכיוון הנכון!) הליכה של ~45–60 דקות עם הילדים, ירידה ב-Chelsea Market.</p>
       <div class="tip">Time Out: ‏High Line = הדבר החינמי הטוב ביותר בניו יורק.</div></div>
     <div class="ev"><span class="time">12:00</span><h4><span class="em">🌮</span>צהריים ב-Chelsea Market</h4>
@@ -963,7 +1039,7 @@ body.dark #summary .bless{color:#c2cedb}
     <div class="ev"><span class="time">11:00</span><h4><span class="em">🚇</span>סאבווי ל-Pier 11 / Wall St</h4><p></p></div>
     <div class="ev"><span class="time">11:30</span><h4><span class="em">⛴️</span>מעבורת NYC Ferry ל-DUMBO</h4>
       <p>10 דקות על המים עם נוף לגשרים. חוויה בפני עצמה!</p></div>
-    <div class="ev"><span class="time">12:00</span><h4><span class="em">📸</span>ברוקלין: DUMBO</h4>
+    <div class="ev"><span class="time">12:00</span><h4><span class="em">📸</span>ברוקלין: DUMBO<span class="star">⭐ שיא היום</span></h4>
       <p>תמונת החובה ב-Washington Street (הגשר בין הבניינים), Jane's Carousel (קרוסלה מ-1922), Brooklyn Bridge Park. צהריים: פיצה ב-Grimaldi's / Juliana's או גלידה על המים.</p></div>
     <div class="ev"><span class="time">15:00</span><h4><span class="em">🌉</span>הליכה על גשר ברוקלין לכיוון מנהטן <span class="skip">ניתן לוויתור</span></h4>
       <p>מהצד של ברוקלין קו הרקיע לפניכם כל הדרך. 25–30 דקות, חינם. אם נשאר זמן: South Street Seaport בצד המנהטני.</p></div>
@@ -986,7 +1062,7 @@ body.dark #summary .bless{color:#c2cedb}
       <p>Lox + Cream Cheese, ‏"THE bagels". בדרך ל-Grand Central.</p></div>
     <div class="ev"><span class="time">09:00</span><h4><span class="em">🧳</span>צ'ק-אאוט Radio City Apartments</h4>
       <p>לפני היציאה! + השארת מזוודות בשמירה. מסיימים מוקדם כדי להיות חופשיים.</p></div>
-    <div class="ev"><span class="time">09:30</span><h4><span class="em">🌇</span>SUMMIT One Vanderbilt</h4>
+    <div class="ev"><span class="time">09:30</span><h4><span class="em">🌇</span>SUMMIT One Vanderbilt<span class="star">⭐ שיא היום</span></h4>
       <p>כרטיס מתוזמן ל-09:30–10:00. שלוש קומות מראות, Levitation, מרפסת חיצונית. ~90 דקות.</p>
       <div class="tip">להזמין מראש: summitov.com. קוד לבוש: רצפות מראה – מכנסיים/שורטס (לא חצאיות!), משקפי שמש ליום בהיר.</div></div>
     <div class="ev"><span class="time">11:30</span><h4><span class="em">🍔</span>צהריים באזור Grand Central Terminal</h4>
@@ -1113,6 +1189,13 @@ body.dark #summary .bless{color:#c2cedb}
 </section>
 </main>
 
+<nav id="actbar" aria-label="פעולות מהירות">
+  <button id="ab-today"><span class="ic">📍</span>היום</button>
+  <button id="ab-route"><span class="ic">🗺️</span>המסלול</button>
+  <button id="ab-weiz"><span class="ic">🐕</span>ויצמן</button>
+  <button id="ab-diary"><span class="ic">📸</span>יומן</button>
+</nav>
+
 <div id="upd-toast"><span>🔄 יש גרסה חדשה של האתר</span><button id="upd-btn">רענון</button></div>
 
 <div id="lightbox"><img alt=""></div>
@@ -1169,7 +1252,7 @@ body.dark #summary .bless{color:#c2cedb}
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-14-5';
+var SITE_VERSION = '2026-07-14-8';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -1315,11 +1398,12 @@ var GEMINI_EMBEDDED_KEY = '';
   if (!figs.length || typeof fetch !== 'function') return;
 
   function setImg(f, src){
-    if (!src) return;
+    if (!src){ f.classList.add('off'); return; }
     var im = f.querySelector('img');
     im.loading = 'eager';
     im.referrerPolicy = 'no-referrer';
     im.onload = function(){ f.classList.add('on'); };
+    im.onerror = function(){ f.classList.add('off'); };
     im.src = src;
     if (f.getAttribute('data-wiki') === 'Times Square'){
       var hero = document.querySelector('.hero');
@@ -1340,7 +1424,7 @@ var GEMINI_EMBEDDED_KEY = '';
       .then(function(d){
         setImg(f, (d.thumbnail && d.thumbnail.source && d.thumbnail.source.replace(/\/(\d+)px-/, '/1100px-'))
                   || (d.originalimage && d.originalimage.source));
-      }).catch(function(){});
+      }).catch(function(){ f.classList.add('off'); });
   }
 
   /* ראשי: בקשה אחת מרוכזת (action=query + pilimit) */
@@ -1372,6 +1456,12 @@ var GEMINI_EMBEDDED_KEY = '';
   }).catch(function(){
     figs.forEach(loadOne);      /* אם ה-batch נפל כולו – עוברים לבקשות בודדות */
   });
+  /* רשת ביטחון: שלד שלא נטען תוך 12 שניות – מוסתר בעדינות */
+  setTimeout(function(){
+    figs.forEach(function(f){
+      if (!f.classList.contains('on')) f.classList.add('off');
+    });
+  }, 12000);
 })();
 
 
@@ -1727,6 +1817,19 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   var dn = TRIP.dayNumber(now);
   if (dn < 1 || dn > TRIP.DAYS) return;
   var cards = document.querySelectorAll('article.day');
+  /* קיפול ימים שכבר הסתיימו – לחיצה על הכותרת פותחת/סוגרת */
+  function lastDayOfCard(c){ return c<=1 ? c+1 : (c===2 ? 4 : c+2); }
+  Array.prototype.forEach.call(cards, function(cd, c){
+    if (lastDayOfCard(c) >= dn) return;
+    cd.classList.add('past');
+    var head = cd.querySelector('.day-head');
+    if (!head || head.querySelector('.past-chip')) return;
+    var chip = document.createElement('span'); chip.className='past-chip'; chip.textContent='✓ הסתיים';
+    var arrow = document.createElement('span'); arrow.className='past-arrow'; arrow.textContent='▼';
+    head.querySelector('h3').appendChild(chip);
+    head.appendChild(arrow);
+    head.addEventListener('click', function(){ cd.classList.toggle('past-open'); });
+  });
   var card = cards[TRIP.cardIndex(dn)];
   if (!card) return;
   card.classList.add('today');
@@ -1814,6 +1917,34 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   var sec = document.getElementById('summary');
   if (!sec) return;
   sec.style.display = 'block';
+  /* מספרים רצים כשמגיעים לסקשן */
+  function countUp(){
+    var reduce = false;
+    try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+    sec.querySelectorAll('.stat b').forEach(function(el){
+      var raw = el.textContent;
+      var m = raw.match(/^([~]?)([\d,]+)(\+?)$/);
+      if (!m || reduce) return;                     /* ∞ וכד' נשארים כמו שהם */
+      var target = parseInt(m[2].replace(/,/g,''), 10);
+      var prefix = m[1], suffix = m[3];
+      var t0 = null, DUR = 1300;
+      function frame(ts){
+        if (!t0) t0 = ts;
+        var p = Math.min(1, (ts - t0) / DUR);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = prefix + Math.round(target * eased).toLocaleString('he-IL') + suffix;
+        if (p < 1) requestAnimationFrame(frame);
+      }
+      el.textContent = prefix + '0' + suffix;
+      requestAnimationFrame(frame);
+    });
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(en){
+      if (en[0].isIntersecting){ countUp(); io.disconnect(); }
+    }, {threshold: 0.25});
+    io.observe(sec);
+  }
   var nav = document.querySelector('nav .wrap');
   if (nav && !document.getElementById('nav-summary')){
     var a = document.createElement('a');
@@ -1860,6 +1991,66 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:'){
     apply(dark);
     try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch(e){}
   });
+})();
+
+
+
+/* ===== סרגל פעולות תחתון (נייד) ===== */
+(function(){
+  var bar = document.getElementById('actbar');
+  if (!bar) return;
+  function go(sel){
+    var el = document.querySelector(sel);
+    if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  document.getElementById('ab-today').addEventListener('click', function(){
+    var today = document.querySelector('article.day.today');
+    if (today && typeof today.scrollIntoView === 'function') today.scrollIntoView({behavior:'smooth', block:'start'});
+    else window.scrollTo({top:0, behavior:'smooth'});
+  });
+  document.getElementById('ab-route').addEventListener('click', function(){ go('#part1'); });
+  document.getElementById('ab-diary').addEventListener('click', function(){ go('#diary'); });
+  document.getElementById('ab-weiz').addEventListener('click', function(){
+    var box = document.getElementById('chat');
+    if (box.classList.contains('open')) document.getElementById('chat-x').click();
+    else document.getElementById('chat-fab').click();
+  });
+})();
+
+
+
+/* ===== פס התקדמות: 24 נקודות, אחת לכל יום ===== */
+(function(){
+  var bar = document.getElementById('tripbar');
+  if (!bar) return;
+  var dn = TRIP.dayNumber(TRIP.nyNow());
+  var cards = document.querySelectorAll('article.day');
+  for (var i = 1; i <= TRIP.DAYS; i++){
+    var b = document.createElement('button');
+    b.className = 'dot' + (i < dn ? ' fill' : '') + (i === dn ? ' now' : '');
+    b.title = 'יום ' + i;
+    b.setAttribute('aria-label', 'קפיצה ליום ' + i);
+    (function(day){
+      b.addEventListener('click', function(){
+        var c = cards[TRIP.cardIndex(day)];
+        if (c && typeof c.scrollIntoView === 'function') c.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    })(i);
+    bar.appendChild(b);
+  }
+})();
+
+/* ===== הופעה הדרגתית בגלילה (מכבד reduced-motion, בטוח בלי JS) ===== */
+(function(){
+  if (!('IntersectionObserver' in window)) return;
+  try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch(e){}
+  var evs = document.querySelectorAll('.ev');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){ en.target.classList.add('vis'); io.unobserve(en.target); }
+    });
+  }, {rootMargin: '0px 0px -8% 0px'});
+  evs.forEach(function(ev){ ev.classList.add('pre'); io.observe(ev); });
 })();
 
 </script>
