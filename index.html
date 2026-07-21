@@ -1269,7 +1269,7 @@ body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-18-9';
+var SITE_VERSION = '2026-07-18-10';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -1689,15 +1689,19 @@ var GEMINI_EMBEDDED_KEY = '';
   var MODEL_FALLBACKS = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'];
 
   function callModel(modelName, body){
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, 15000);   /* 15 שנ' – אם המודל נתקע, עוברים לדגם הבא */
     return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+modelName+':generateContent?key='+encodeURIComponent(getKey()), {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
-    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, status:r.status, j:j}; }); });
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal: ctrl.signal
+    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, status:r.status, j:j}; }); })
+      .catch(function(){ return {ok:false, status:0, j:{error:{message:'תם הזמן – עובר לדגם הבא'}}}; })
+      .finally(function(){ clearTimeout(to); });
   }
 
   function isModelUnavailable(res){
     var m = (res.j.error && res.j.error.message) || '';
     /* 404 = מודל לא קיים; 429 = נגמרה המכסה החינמית למודל הזה – עוברים למודל עם מכסה גדולה יותר */
-    return res.status===404 || res.status===429 || /not found|no longer available|not supported/i.test(m);
+    return res.status===404 || res.status===429 || res.status===0 || /not found|no longer available|not supported/i.test(m);
   }
 
   function callWithFallback(body, idx){
@@ -1722,7 +1726,7 @@ var GEMINI_EMBEDDED_KEY = '';
     var body = {
       systemInstruction:{parts:[{text: buildContext()}]},
       contents: history.slice(-12),
-      generationConfig:{temperature:0.6, maxOutputTokens:1000}
+      generationConfig:{temperature:0.6, maxOutputTokens:1200, thinkingConfig:{thinkingBudget:0}}
     };
     callWithFallback(body)
     .catch(function(){ /* כשל רשת רגעי – ניסיון חוזר אחד אחרי 1.2 שניות */
