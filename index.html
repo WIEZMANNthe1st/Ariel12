@@ -1269,7 +1269,7 @@ body.off-shadow #chat,body.off-shadow nav{box-shadow:none !important}
    ================================================================ */
 
 /* גרסת האתר – מעדכנים בכל העלאה (מפעיל התראת רענון אצל המשתמשים) */
-var SITE_VERSION = '2026-07-18-10';
+var SITE_VERSION = '2026-07-18-12';
 
 /* ===== TRIP: קבועים ופונקציות תאריך משותפים לכל המודולים ===== */
 var TRIP = {
@@ -1726,7 +1726,7 @@ var GEMINI_EMBEDDED_KEY = '';
     var body = {
       systemInstruction:{parts:[{text: buildContext()}]},
       contents: history.slice(-12),
-      generationConfig:{temperature:0.6, maxOutputTokens:1200, thinkingConfig:{thinkingBudget:0}}
+      generationConfig:{temperature:0.6, maxOutputTokens:1200}
     };
     callWithFallback(body)
     .catch(function(){ /* כשל רשת רגעי – ניסיון חוזר אחד אחרי 1.2 שניות */
@@ -1736,12 +1736,16 @@ var GEMINI_EMBEDDED_KEY = '';
       thinking.remove();
       if (!res.ok){
         var m = (res.j.error && res.j.error.message) || ('שגיאה ' + res.status);
-        if (res.status===400 || res.status===403){
+        var keyIssue = res.status===403 || (res.status===400 && /api[_ ]?key/i.test(m));
+        if (keyIssue){
           add('err','המפתח לא תקין או ללא הרשאה. '+m);
           var r = document.createElement('button');
           r.className='chat-reset'; r.textContent='הזנת מפתח מחדש';
           r.onclick=function(){ delKey(); msgs.innerHTML=''; show('setup'); };
           msgs.appendChild(r);
+        } else if (res.status===400){
+          /* שגיאת בקשה שאינה קשורה למפתח (למשל באג זמני בפרמטרים) – לא לבהל את המשתמש עם הצעה למחוק מפתח תקין */
+          add('err','משהו השתבש בבקשה. נסו לשלוח שוב בעוד רגע 🐕');
         } else if (res.status===429){
           add('err','וואו, שאלתם הרבה! 🐕 המכסה החינמית של Gemini התמלאה לרגע – חכו כדקה ונסו שוב.');
         } else add('err', m);
